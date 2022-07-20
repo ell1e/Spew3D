@@ -28,7 +28,7 @@ main folder to prepare the resulting `spew3d.h` file with everything.
 Then, put this in all your files where you want to use it from:
 
 ```
-#include <spew3d.h>`
+#include <spew3d.h>
 ```
 
 And put it only like this into one single object file, which will then
@@ -41,6 +41,7 @@ contain the actual implementation code and not just the header:
 ```
 
 When you link your final program, make sure to add [SDL2](
-https://libsdl.org) to the command line, and everything that SDL2
-needs.
+https://libsdl.org) to the linked libraries, and everything that SDL2
+needs. It should work no matter if you dynamically or statically link
+SDL2.
 
