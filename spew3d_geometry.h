@@ -10,11 +10,21 @@ typedef struct spew3d_pos spew3d_pos;
 typedef struct spew3d_point spew3d_point;
 typedef struct spew3d_rotation spew3d_rotation;
 
+typedef uint32_t spew3d_material_t;
+
+#define SPEW3D_MATERIAL_TRANSPARENT33 ((uint32_t)1)
+#define SPEW3D_MATERIAL_TRANSPARENT66 ((uint32_t)1 << 1)
+#define SPEW3D_MATERIAL_OBJECTPASSABLE ((uint32_t)1 << 2)
+#define SPEW3D_MATERIAL_BULLETSHOTPASSABLE ((uint32_t)1 << 3)
+#define SPEW3D_MATERIAL_AISIGHTPASSABLE ((uint32_t)1 << 4)
+
+
 typedef struct spew3d_geometry {
     int32_t vertex_count;
     spew3d_pos *vertex;
     int32_t polygon_count;
     spew3d_pos *polygon_normal;
+    spew3d_material_t *polygon_material;
     int32_t *polygon_vertexindex;
     spew3d_point *polygon_texcoord;
     spew3d_texture_t *polygon_texture;

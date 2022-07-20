@@ -33,6 +33,14 @@ int _internal_spew3d_geometry_AddVertexPolyAlloc(
     if (!new_vertexindex)
         return 0;
     geometry->polygon_vertexindex = new_vertexindex;
+    spew3d_material_t *new_material = realloc(
+        geometry->polygon_material,
+        sizeof(*new_material) *
+        (geometry->polygon_count + add_polygon)
+    );
+    if (!new_material)
+        return 0;
+    geometry->polygon_material = new_material;
     spew3d_point *new_texcoord = realloc(
         geometry->polygon_texcoord,
         sizeof(*new_texcoord) *
@@ -79,6 +87,7 @@ int spew3d_geometry_AddCube(
     return 1;
 }
 
+
 int spew3d_geometry_AddCubeSimple(
         spew3d_geometry *geometry,
         double edge_width,
@@ -107,15 +116,25 @@ int spew3d_geometry_AddCubeSimple(
     spew3d_rotation rotation = {0};
     return spew3d_geometry_AddCube(
         geometry, edge_width, &offset, &rotation,
-        coords, textures,
+        coords, textures
     );
 }
 
 
 void spew3d_geometry_Destroy(spew3d_geometry *geometry) {
     if (!geometry)
-        return NULL;
-    // FIXME.
+        return;
+    int32_t i = 0;
+    while (i < geometry->owned_texture_count) {
+        spew3d_texture_Destroy(geometry->owned_texture[i]);
+        i++;
+    }
+    free(geometry->vertex);
+    free(geometry->polygon_normal);
+    free(geometry->polygon_material);
+    free(geometry->polygon_vertexindex);
+    free(geometry->polygon_texcoord);
+    free(geometry->polygon_texture);
 }
 
 #endif  // SPEW3D_IMPLEMENTATION

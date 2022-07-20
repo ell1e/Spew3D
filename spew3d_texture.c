@@ -79,10 +79,10 @@ spew3d_texture_t _internal_spew3d_texture_ByFileOrName(
 
     int32_t i = 1;
     while (i <= _internal_spew3d_texlist_count) {
-        if (_internal_spew3d_texlist[i - 1]->nameorfilepath &&
-                _internal_spew3d_texlist[i - 1]->fromfile ==
+        if (_internal_spew3d_texlist[i - 1].nameorfilepath &&
+                _internal_spew3d_texlist[i - 1].fromfile ==
                 (fromfile != 0) &&
-                strcmp(_internal_spew3d_texlist[i - 1]->nameorfilepath,
+                strcmp(_internal_spew3d_texlist[i - 1].nameorfilepath,
                    _internal_tex_get_buf) == 0) {
             return i;
         }
@@ -148,10 +148,13 @@ spew3d_texture_t spew3d_texture_ByName(
 
 void spew3d_texture_Destroy(spew3d_texture_t tid) {
     assert(tid >= 0 && tid < _internal_spew3d_texlist_count);
-    spew3d_texture_info *tinfo = spew3d_texinfo(tex);
+    if (tid == 0)
+        return;
+    spew3d_texture_info *tinfo = spew3d_texinfo(tid);
     assert(tinfo != NULL);
     assert(!tinfo->fromfile);
-    assert(tinfo->loaded);
+    if (!tinfo->loaded)
+        return;
     free(tinfo->pixels);
     free(tinfo->nameorfilepath);
     tinfo->nameorfilepath = NULL;
