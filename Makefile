@@ -1,3 +1,6 @@
 
+HEADERS=$(filter-out ./spew3d.h,$(wildcard ./*.h))
+SOURCES=$(wildcard ./*.c)
+
 all:
-	cat *.h *.c > spew3d.h
+	cat $(HEADERS) $(SOURCES) > spew3d.h

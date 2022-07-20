@@ -79,5 +79,44 @@ int spew3d_geometry_AddCube(
     return 1;
 }
 
+int spew3d_geometry_AddCubeSimple(
+        spew3d_geometry *geometry,
+        double edge_width,
+        spew3d_texture_t texture
+        ) {
+    spew3d_point coords[4 * 6];
+    spew3d_texture_t textures[6];
+    int i = 0;
+    while (i < 6) {
+        textures[i] = texture;
+        // Top left:
+        coords[i * 4 + 0].x = 0;
+        coords[i * 4 + 0].y = 0;
+        // Top right:
+        coords[i * 4 + 1].x = 1;
+        coords[i * 4 + 1].y = 0;
+        // Bottom left:
+        coords[i * 4 + 2].x = 0;
+        coords[i * 4 + 2].y = 1;
+        // Bottom right:
+        coords[i * 4 + 3].x = 1;
+        coords[i * 4 + 3].y = 1;
+        i++;
+    }
+    spew3d_pos offset = {0};
+    spew3d_rotation rotation = {0};
+    return spew3d_geometry_AddCube(
+        geometry, edge_width, &offset, &rotation,
+        coords, textures,
+    );
+}
+
+
+void spew3d_geometry_Destroy(spew3d_geometry *geometry) {
+    if (!geometry)
+        return NULL;
+    // FIXME.
+}
+
 #endif  // SPEW3D_IMPLEMENTATION
 

@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 
-typedef int64_t spew3d_texture_t;
+typedef uint64_t spew3d_texture_t;
 
 typedef struct spew3d_texture_info {
     char *nameorfilepath;
@@ -14,7 +14,7 @@ typedef struct spew3d_texture_info {
     char *pixels;
 } spew3d_texture_info;
 
-extern int32_t _internal_spew3d_texlist_count;
+extern uint64_t _internal_spew3d_texlist_count;
 extern spew3d_texture_info *_internal_spew3d_texlist;
 
 spew3d_texture_t spew3d_texture_ByFile(const char *path);

@@ -7,7 +7,7 @@
 #include <string.h>
 #include <SDL2/SDL.h>
 
-int64_t _internal_spew3d_texlist_count;
+uint64_t _internal_spew3d_texlist_count;
 spew3d_texture_info *_internal_spew3d_texlist;
 
 void _internal_normpath(char *p) {
