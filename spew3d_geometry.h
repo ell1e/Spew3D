@@ -43,13 +43,15 @@ int spew3d_geometry_AddCube(
     spew3d_pos *offset,
     spew3d_rotation *rotation,
     spew3d_point *side_texcoord,
-    spew3d_texture_t *side_texture
+    spew3d_texture_t *side_texture,
+    int *side_texture_owned
 );
 
 int spew3d_geometry_AddCubeSimple(
     spew3d_geometry *geometry,
     double edge_width,
-    spew3d_texture_t texture
+    spew3d_texture_t texture,
+    int texture_owned
 );
 
 void spew3d_geometry_Destroy(spew3d_geometry *geometry);

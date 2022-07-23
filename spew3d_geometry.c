@@ -4,7 +4,6 @@
 #include <SDL2/SDL.h>
 #include <string.h>
 
-
 int _internal_spew3d_geometry_AddVertexPolyAlloc(
         spew3d_geometry *geometry,
         int add_vertex, int add_polygon
@@ -77,7 +76,8 @@ int spew3d_geometry_AddCube(
         spew3d_pos *offset,
         spew3d_rotation *rotation,
         spew3d_point *side_texcoord,
-        spew3d_texture_t *side_texture
+        spew3d_texture_t *side_texture,
+        int *side_texture_owned
         ) {
     if (!_internal_spew3d_geometry_AddVertexPolyAlloc(
             geometry, 8, 12
@@ -91,13 +91,17 @@ int spew3d_geometry_AddCube(
 int spew3d_geometry_AddCubeSimple(
         spew3d_geometry *geometry,
         double edge_width,
-        spew3d_texture_t texture
+        spew3d_texture_t texture,
+        int texture_owned
         ) {
     spew3d_point coords[4 * 6];
+    int texture_owned_flag[6];
     spew3d_texture_t textures[6];
     int i = 0;
     while (i < 6) {
+        texture_owned_flag[i] = (texture_owned != 0);
         textures[i] = texture;
+
         // Top left:
         coords[i * 4 + 0].x = 0;
         coords[i * 4 + 0].y = 0;
@@ -110,13 +114,15 @@ int spew3d_geometry_AddCubeSimple(
         // Bottom right:
         coords[i * 4 + 3].x = 1;
         coords[i * 4 + 3].y = 1;
+
         i++;
     }
     spew3d_pos offset = {0};
     spew3d_rotation rotation = {0};
+
     return spew3d_geometry_AddCube(
         geometry, edge_width, &offset, &rotation,
-        coords, textures
+        coords, textures, texture_owned_flag
     );
 }
 
