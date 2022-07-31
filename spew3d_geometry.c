@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <string.h>
 
+
 int _internal_spew3d_geometry_AddVertexPolyAlloc(
         spew3d_geometry *geometry,
         int add_vertex, int add_polygon
@@ -84,6 +85,118 @@ int spew3d_geometry_AddCube(
             )) {
         return 0;
     }
+
+    const double halfedgewidth = (edge_width / 2.0);
+    int viter = geometry->vertex_count - 8;
+    const int viterstart = viter;
+    while (viter < geometry->vertex_count) {
+        const int relidx = (viter - viterstart);
+        spew3d_pos finaloffset = {0};
+        finaloffset.z = (
+            (relidx >= 4) ? -halfedgewidth : halfedgewidth
+        );
+        finaloffset.x = (
+            (relidx == 0 || relidx == 3 || relidx == 4 ||
+            relidx == 7) ? halfedgewidth : -halfedgewidth
+        );
+        finaloffset.y = (
+            (relidx == 0 || relidx == 1 || relidx == 4 ||
+            relidx == 5) ? halfedgewidth : -halfedgewidth
+        );
+        spew3d_math3d_rotate(&finaloffset, rotation);
+        spew3d_math3d_add(&finaloffset, offset);
+        geometry->vertex[viter] = finaloffset;
+        viter++;
+    }
+
+    const int poffset = geometry->polygon_count - 12;
+    int32_t *vindex = geometry->polygon_vertexindex;
+    spew3d_point *txcoord = geometry->polygon_texcoord;
+
+    // Forward / X+ side
+    vindex[poffset * 3 + 0] = 0;  // bottom left
+    vindex[poffset * 3 + 1] = 5;  // top right
+    vindex[poffset * 3 + 2] = 1;  // bottom right
+    txcoord[poffset * 3 + 0] = side_texcoord[3];
+    txcoord[poffset * 3 + 1] = side_texcoord[1];
+    txcoord[poffset * 3 + 2] = side_texcoord[2];
+    vindex[poffset * 3 + 3] = 0;  // bottom left
+    vindex[poffset * 3 + 4] = 4;  // top left
+    vindex[poffset * 3 + 5] = 5;  // top right
+    txcoord[poffset * 3 + 0] = side_texcoord[3];
+    txcoord[poffset * 3 + 1] = side_texcoord[0];
+    txcoord[poffset * 3 + 2] = side_texcoord[1];
+
+    // Right / Y- side
+    vindex[poffset * 3 + 0] = 0;  // bottom left
+    vindex[poffset * 3 + 1] = 5;  // top right
+    vindex[poffset * 3 + 2] = 1;  // bottom right
+    txcoord[poffset * 3 + 0] = side_texcoord[4 + 3];
+    txcoord[poffset * 3 + 1] = side_texcoord[4 + 1];
+    txcoord[poffset * 3 + 2] = side_texcoord[4 + 2];
+    vindex[poffset * 3 + 3] = 0;  // bottom left
+    vindex[poffset * 3 + 4] = 4;  // top left
+    vindex[poffset * 3 + 5] = 5;  // top right
+    txcoord[poffset * 3 + 0] = side_texcoord[4 + 3];
+    txcoord[poffset * 3 + 1] = side_texcoord[4 + 0];
+    txcoord[poffset * 3 + 2] = side_texcoord[4 + 1];
+
+    // Backward / X- side
+    vindex[poffset * 3 + 0] = 0;  // bottom left
+    vindex[poffset * 3 + 1] = 5;  // top right
+    vindex[poffset * 3 + 2] = 1;  // bottom right
+    txcoord[poffset * 3 + 0] = side_texcoord[8 + 3];
+    txcoord[poffset * 3 + 1] = side_texcoord[8 + 1];
+    txcoord[poffset * 3 + 2] = side_texcoord[8 + 2];
+    vindex[poffset * 3 + 3] = 0;  // bottom left
+    vindex[poffset * 3 + 4] = 4;  // top left
+    vindex[poffset * 3 + 5] = 5;  // top right
+    txcoord[poffset * 3 + 0] = side_texcoord[8 + 3];
+    txcoord[poffset * 3 + 1] = side_texcoord[8 + 0];
+    txcoord[poffset * 3 + 2] = side_texcoord[8 + 1];
+
+    // Left / Y+ side
+    vindex[poffset * 3 + 0] = 0;  // bottom left
+    vindex[poffset * 3 + 1] = 5;  // top right
+    vindex[poffset * 3 + 2] = 1;  // bottom right
+    txcoord[poffset * 3 + 0] = side_texcoord[12 + 3];
+    txcoord[poffset * 3 + 1] = side_texcoord[12 + 1];
+    txcoord[poffset * 3 + 2] = side_texcoord[12 + 2];
+    vindex[poffset * 3 + 3] = 0;  // bottom left
+    vindex[poffset * 3 + 4] = 4;  // top left
+    vindex[poffset * 3 + 5] = 5;  // top right
+    txcoord[poffset * 3 + 0] = side_texcoord[12 + 3];
+    txcoord[poffset * 3 + 1] = side_texcoord[12 + 0];
+    txcoord[poffset * 3 + 2] = side_texcoord[12 + 1];
+
+    // Top / Z+ side
+    vindex[poffset * 3 + 0] = 0;  // bottom left
+    vindex[poffset * 3 + 1] = 5;  // top right
+    vindex[poffset * 3 + 2] = 1;  // bottom right
+    txcoord[poffset * 3 + 0] = side_texcoord[16 + 3];
+    txcoord[poffset * 3 + 1] = side_texcoord[16 + 1];
+    txcoord[poffset * 3 + 2] = side_texcoord[16 + 2];
+    vindex[poffset * 3 + 3] = 0;  // bottom left
+    vindex[poffset * 3 + 4] = 4;  // top left
+    vindex[poffset * 3 + 5] = 5;  // top right
+    txcoord[poffset * 3 + 0] = side_texcoord[16 + 3];
+    txcoord[poffset * 3 + 1] = side_texcoord[16 + 0];
+    txcoord[poffset * 3 + 2] = side_texcoord[16 + 1];
+
+    // Down / Z- side
+    vindex[poffset * 3 + 0] = 0;  // bottom left
+    vindex[poffset * 3 + 1] = 5;  // top right
+    vindex[poffset * 3 + 2] = 1;  // bottom right
+    txcoord[poffset * 3 + 0] = side_texcoord[20 + 3];
+    txcoord[poffset * 3 + 1] = side_texcoord[20 + 1];
+    txcoord[poffset * 3 + 2] = side_texcoord[20 + 2];
+    vindex[poffset * 3 + 3] = 0;  // bottom left
+    vindex[poffset * 3 + 4] = 4;  // top left
+    vindex[poffset * 3 + 5] = 5;  // top right
+    txcoord[poffset * 3 + 0] = side_texcoord[20 + 3];
+    txcoord[poffset * 3 + 1] = side_texcoord[20 + 0];
+    txcoord[poffset * 3 + 2] = side_texcoord[20 + 1];
+
     return 1;
 }
 
@@ -108,11 +221,11 @@ int spew3d_geometry_AddCubeSimple(
         // Top right:
         coords[i * 4 + 1].x = 1;
         coords[i * 4 + 1].y = 0;
-        // Bottom left:
-        coords[i * 4 + 2].x = 0;
-        coords[i * 4 + 2].y = 1;
         // Bottom right:
-        coords[i * 4 + 3].x = 1;
+        coords[i * 4 + 2].x = 1;
+        coords[i * 4 + 2].y = 1;
+        // Bottom left:
+        coords[i * 4 + 3].x = 0;
         coords[i * 4 + 3].y = 1;
 
         i++;

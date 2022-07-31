@@ -11,6 +11,14 @@ typedef struct spew3d_rotation {
 } spew3d_rotation;
 
 
+static inline void spew3d_math3d_add(
+        spew3d_pos *p, spew3d_pos *p2
+        ) {
+    p->x += p2->x;
+    p->y += p2->y;
+    p->z += p2->z;
+}
+
 static inline void spew3d_math3d_rotate(
         spew3d_pos *p, spew3d_rotation *r
         ) {
