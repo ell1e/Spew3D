@@ -109,51 +109,54 @@ int spew3d_geometry_AddCube(
         viter++;
     }
 
-    const int poffset = geometry->polygon_count - 12;
+    int poffset = geometry->polygon_count - 12;
     int32_t *vindex = geometry->polygon_vertexindex;
     spew3d_point *txcoord = geometry->polygon_texcoord;
 
     // Forward / X+ side
-    vindex[poffset * 3 + 0] = 0;  // bottom left
-    vindex[poffset * 3 + 1] = 5;  // top right
-    vindex[poffset * 3 + 2] = 1;  // bottom right
+    vindex[poffset * 3 + 0] = 3;  // bottom left
+    vindex[poffset * 3 + 1] = 4;  // top right
+    vindex[poffset * 3 + 2] = 0;  // bottom right
     txcoord[poffset * 3 + 0] = side_texcoord[3];
     txcoord[poffset * 3 + 1] = side_texcoord[1];
     txcoord[poffset * 3 + 2] = side_texcoord[2];
-    vindex[poffset * 3 + 3] = 0;  // bottom left
-    vindex[poffset * 3 + 4] = 4;  // top left
-    vindex[poffset * 3 + 5] = 5;  // top right
+    vindex[poffset * 3 + 3] = 3;  // bottom left
+    vindex[poffset * 3 + 4] = 7;  // top left
+    vindex[poffset * 3 + 5] = 4;  // top right
     txcoord[poffset * 3 + 0] = side_texcoord[3];
     txcoord[poffset * 3 + 1] = side_texcoord[0];
     txcoord[poffset * 3 + 2] = side_texcoord[1];
+    poffset += 2;
 
     // Right / Y- side
-    vindex[poffset * 3 + 0] = 0;  // bottom left
-    vindex[poffset * 3 + 1] = 5;  // top right
-    vindex[poffset * 3 + 2] = 1;  // bottom right
+    vindex[poffset * 3 + 0] = 2;  // bottom left
+    vindex[poffset * 3 + 1] = 7;  // top right
+    vindex[poffset * 3 + 2] = 3;  // bottom right
     txcoord[poffset * 3 + 0] = side_texcoord[4 + 3];
     txcoord[poffset * 3 + 1] = side_texcoord[4 + 1];
     txcoord[poffset * 3 + 2] = side_texcoord[4 + 2];
-    vindex[poffset * 3 + 3] = 0;  // bottom left
-    vindex[poffset * 3 + 4] = 4;  // top left
-    vindex[poffset * 3 + 5] = 5;  // top right
+    vindex[poffset * 3 + 3] = 2;  // bottom left
+    vindex[poffset * 3 + 4] = 6;  // top left
+    vindex[poffset * 3 + 5] = 7;  // top right
     txcoord[poffset * 3 + 0] = side_texcoord[4 + 3];
     txcoord[poffset * 3 + 1] = side_texcoord[4 + 0];
     txcoord[poffset * 3 + 2] = side_texcoord[4 + 1];
+    poffset += 2;
 
     // Backward / X- side
-    vindex[poffset * 3 + 0] = 0;  // bottom left
-    vindex[poffset * 3 + 1] = 5;  // top right
-    vindex[poffset * 3 + 2] = 1;  // bottom right
+    vindex[poffset * 3 + 0] = 1;  // bottom left
+    vindex[poffset * 3 + 1] = 6;  // top right
+    vindex[poffset * 3 + 2] = 2;  // bottom right
     txcoord[poffset * 3 + 0] = side_texcoord[8 + 3];
     txcoord[poffset * 3 + 1] = side_texcoord[8 + 1];
     txcoord[poffset * 3 + 2] = side_texcoord[8 + 2];
-    vindex[poffset * 3 + 3] = 0;  // bottom left
-    vindex[poffset * 3 + 4] = 4;  // top left
-    vindex[poffset * 3 + 5] = 5;  // top right
+    vindex[poffset * 3 + 3] = 1;  // bottom left
+    vindex[poffset * 3 + 4] = 5;  // top left
+    vindex[poffset * 3 + 5] = 6;  // top right
     txcoord[poffset * 3 + 0] = side_texcoord[8 + 3];
     txcoord[poffset * 3 + 1] = side_texcoord[8 + 0];
     txcoord[poffset * 3 + 2] = side_texcoord[8 + 1];
+    poffset += 2;
 
     // Left / Y+ side
     vindex[poffset * 3 + 0] = 0;  // bottom left
@@ -168,34 +171,37 @@ int spew3d_geometry_AddCube(
     txcoord[poffset * 3 + 0] = side_texcoord[12 + 3];
     txcoord[poffset * 3 + 1] = side_texcoord[12 + 0];
     txcoord[poffset * 3 + 2] = side_texcoord[12 + 1];
+    poffset += 2;
 
     // Top / Z+ side
-    vindex[poffset * 3 + 0] = 0;  // bottom left
-    vindex[poffset * 3 + 1] = 5;  // top right
-    vindex[poffset * 3 + 2] = 1;  // bottom right
+    vindex[poffset * 3 + 0] = 5;  // bottom left
+    vindex[poffset * 3 + 1] = 7;  // top right
+    vindex[poffset * 3 + 2] = 6;  // bottom right
     txcoord[poffset * 3 + 0] = side_texcoord[16 + 3];
     txcoord[poffset * 3 + 1] = side_texcoord[16 + 1];
     txcoord[poffset * 3 + 2] = side_texcoord[16 + 2];
-    vindex[poffset * 3 + 3] = 0;  // bottom left
+    vindex[poffset * 3 + 3] = 5;  // bottom left
     vindex[poffset * 3 + 4] = 4;  // top left
-    vindex[poffset * 3 + 5] = 5;  // top right
+    vindex[poffset * 3 + 5] = 7;  // top right
     txcoord[poffset * 3 + 0] = side_texcoord[16 + 3];
     txcoord[poffset * 3 + 1] = side_texcoord[16 + 0];
     txcoord[poffset * 3 + 2] = side_texcoord[16 + 1];
+    poffset += 2;
 
     // Down / Z- side
-    vindex[poffset * 3 + 0] = 0;  // bottom left
-    vindex[poffset * 3 + 1] = 5;  // top right
+    vindex[poffset * 3 + 0] = 2;  // bottom left
+    vindex[poffset * 3 + 1] = 0;  // top right
     vindex[poffset * 3 + 2] = 1;  // bottom right
     txcoord[poffset * 3 + 0] = side_texcoord[20 + 3];
     txcoord[poffset * 3 + 1] = side_texcoord[20 + 1];
     txcoord[poffset * 3 + 2] = side_texcoord[20 + 2];
-    vindex[poffset * 3 + 3] = 0;  // bottom left
-    vindex[poffset * 3 + 4] = 4;  // top left
-    vindex[poffset * 3 + 5] = 5;  // top right
+    vindex[poffset * 3 + 3] = 2;  // bottom left
+    vindex[poffset * 3 + 4] = 3;  // top left
+    vindex[poffset * 3 + 5] = 0;  // top right
     txcoord[poffset * 3 + 0] = side_texcoord[20 + 3];
     txcoord[poffset * 3 + 1] = side_texcoord[20 + 0];
     txcoord[poffset * 3 + 2] = side_texcoord[20 + 1];
+    poffset += 2;
 
     return 1;
 }
