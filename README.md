@@ -5,12 +5,12 @@ You've found **Spew3D**, a one-header file **retro 3d toolkit for C.**
 
 **Features:**
 
-- potato low poly-count graphics
-- simple API
-- 3d, sound, and more
-- good for procedural textures or geometry
-- retro-style like PlayStation 1, Nintendo64, etc.
-- wide platform support thanks to [SDL2](https://libsdl.org),
+- potato low poly-count graphics,
+- simple API,
+- 3d, sound, and more,
+- good for procedural textures or geometry,
+- retro-style like PlayStation 1 or Nintendo64,
+- wide platform support thanks to [SDL2](https://libsdl.org).
 
 **Do not use if** it disturbs you that Spew3D:
 
