@@ -21,8 +21,9 @@ You've found **Spew3D**, a one-header file **retro 3d toolkit for C.**
 
 ## Compiling / Usage
 
-*(If you're using this directly from the repository, run `make` in the
-repo folder to prepare the resulting `spew3d.h` file with everything.)*
+*(If you're using this directly from the repository, run
+`make update-vendor` and `make` in the repo folder to prepare
+the resulting `spew3d.h` file with everything.)*
 
 **Step 1:** add `spew3d.h` into your project's code folder, and
 put this in all your files where you want to use it from:
