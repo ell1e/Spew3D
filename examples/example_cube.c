@@ -29,6 +29,12 @@ int main(int argc, const char **argv) {
         return 1;
     }
 
+    printf("Initializing Spew3D\n");
+    if (!spew3d_Init(window, renderer)) {
+        fprintf(stderr, "Spew3D initialization failed\n");
+        return 1;
+    }
+
     printf("Creating a cube\n");
     spew3d_geometry *cube = spew3d_geometry_Create();
     if (cube) {
