@@ -44,6 +44,13 @@ will make it contain the actual implementation code and not just its API:
 https://libsdl.org) to your linked libraries.
 
 
+## Documentation
+
+For now, please refer to the header files themselves like
+[spew3d_init.h](spew3d_init.h), [spew3d_texture.h](spew3d_texture.h),
+and the `examples` folder for documentation.
+
+
 ## License
 
 Spew3D is licensed under the MIT license, [see here](LICENSE.md).

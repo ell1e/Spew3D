@@ -5,7 +5,7 @@ else
 BINEXT:=.bin
 endif
 HEADERS=$(filter-out ./spew3d.h ./spew3d_prefixed.h,$(wildcard ./*.h))
-SOURCES=$(wildcard ./*.c)
+SOURCES=$(wildcard ./implementation/*.c)
 TESTPROG=$(patsubst %.c, %.$(BINEXT), $(wildcard ./examples/example_*.c))
 
 all:
