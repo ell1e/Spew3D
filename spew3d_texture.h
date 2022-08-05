@@ -17,7 +17,9 @@ typedef struct spew3d_texture_info {
 extern uint64_t _internal_spew3d_texlist_count;
 extern spew3d_texture_info *_internal_spew3d_texlist;
 
-spew3d_texture_t spew3d_texture_ByFile(const char *path);
+spew3d_texture_t spew3d_texture_NewFromFile(
+    const char *path
+);
 
 static inline spew3d_texture_info *spew3d_texinfo(
         spew3d_texture_t id
@@ -27,11 +29,11 @@ static inline spew3d_texture_info *spew3d_texinfo(
     return &_internal_spew3d_texlist[id - 1];
 }
 
-spew3d_texture_t spew3d_texture_ByName(
+spew3d_texture_t spew3d_texture_NewWritable(
     const char *name, uint32_t w, uint32_t h
 );
 
-spew3d_texture_t spew3d_texture_ByNameAsWritableCopy(
+spew3d_texture_t spew3d_texture_NewWritableFromFile(
     const char *name, const char *original_path
 );
 

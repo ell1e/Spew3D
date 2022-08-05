@@ -33,7 +33,8 @@ int main(int argc, const char **argv) {
     spew3d_geometry *cube = spew3d_geometry_Create();
     if (cube) {
         if (!spew3d_geometry_AddCubeSimple(
-                cube, 1.0, spew3d_texture_ByFile("numberone.jpg"), 0
+                cube, 1.0,
+                spew3d_texture_NewFromFile("numberone.jpg"), 0
                 )) {
             spew3d_geometry_Destroy(cube);
             cube = NULL;
