@@ -20,7 +20,8 @@ typedef struct spew3d_texlist_idhashmap_bucket {
     uint64_t texlist_slot_idx;
     spew3d_texlist_idhashmap_bucket *next;
 } spew3d_texlist_idhashmap_bucket;
-spew3d_texlist_idhashmap_bucket *_internal_spew3d_texlist_hashmap = NULL;
+spew3d_texlist_idhashmap_bucket
+    **_internal_spew3d_texlist_hashmap = NULL;
 
 
 static void __attribute__((constructor)) _internal_spew3d_ensure_texhash() {
@@ -36,6 +37,10 @@ static void __attribute__((constructor)) _internal_spew3d_ensure_texhash() {
             "failed to allocate _internal_spew3d_texlist_hashmap");
         _exit(1);
     }
+    memset(_internal_spew3d_texlist_hashmap, 0,
+        sizeof(*_internal_spew3d_texlist_hashmap) *
+        SPEW3D_TEXLIST_IDHASHMAP_SIZE
+    );
 }
 
 
@@ -92,6 +97,7 @@ spew3d_texture_t _internal_spew3d_texture_ByFileOrName(
             return 0;
         _internal_tex_get_buf =
             _internal_tex_get_buf_new;
+        _internal_tex_get_buf_size = newsize;
     }
     memcpy(_internal_tex_get_buf, id, idlen + 1);
     if (fromfile) {
@@ -114,17 +120,41 @@ spew3d_texture_t _internal_spew3d_texture_ByFileOrName(
     if (strlen(_internal_tex_get_buf) == 0)
         return 0;
 
-    int32_t i = 1;
-    while (i <= _internal_spew3d_texlist_count) {
-        if (_internal_spew3d_texlist[i - 1].idstring != NULL &&
-                _internal_spew3d_texlist[i - 1].fromfile ==
+    _internal_spew3d_ensure_texhash();
+    assert(_internal_spew3d_texlist_hashmap != NULL);
+    uint16_t idhash = spew3d_simplehash(_internal_tex_get_buf);
+    spew3d_texlist_idhashmap_bucket *bucket =
+        _internal_spew3d_texlist_hashmap[idhash %
+        SPEW3D_TEXLIST_IDHASHMAP_SIZE];
+    while (bucket != NULL) {
+        const uint64_t idx = bucket->texlist_slot_idx;
+        assert(id >= 0 && idx < _internal_spew3d_texlist_count);
+        if (_internal_spew3d_texlist[idx].idstring != NULL &&
+                _internal_spew3d_texlist[idx].correspondstofile ==
                 (fromfile != 0) &&
-                strcmp(_internal_spew3d_texlist[i - 1].idstring,
+                strcmp(_internal_spew3d_texlist[idx].idstring,
                    _internal_tex_get_buf) == 0) {
-            return i;
+            return idx + 1;
         }
-        i++;
+        assert(bucket != bucket->next);
+        bucket = bucket->next;
     }
+
+    // If we arrive here, the texture doesn't exist yet.
+
+    // Allocate new slot in hash map:
+    spew3d_texlist_idhashmap_bucket *newbucket = malloc(
+        sizeof(*newbucket));
+    if (!newbucket)
+        return 0;
+    memset(newbucket, 0, sizeof(*newbucket));
+    newbucket->next = (
+        _internal_spew3d_texlist_hashmap[idhash %
+        SPEW3D_TEXLIST_IDHASHMAP_SIZE]
+    );
+    newbucket->texlist_slot_idx = _internal_spew3d_texlist_count;
+
+    // Allocate new slot in global list:
     int64_t newcount = _internal_spew3d_texlist_count + 1;
     spew3d_texture_info *new_texlist = realloc(
         _internal_spew3d_texlist,
@@ -133,17 +163,30 @@ spew3d_texture_t _internal_spew3d_texture_ByFileOrName(
     if (!new_texlist)
         return 0;
     _internal_spew3d_texlist = new_texlist;
+
+    // Allocate actual entry:
     char *iddup = strdup(_internal_tex_get_buf);
     if (!iddup)
+        return 0;
+    char *pathdup = (fromfile ? strdup(_internal_tex_get_buf) :
+        (path != NULL ? strdup(path) : NULL));
+    if ((fromfile || path != NULL) && !pathdup)
         return 0;
     spew3d_texture_info *newinfo = &_internal_spew3d_texlist[
         _internal_spew3d_texlist_count
     ];
-    _internal_spew3d_texlist_count++;
     memset(newinfo, 0, sizeof(*newinfo));
     newinfo->idstring = iddup;
-    newinfo->fromfile = (fromfile != 0);
+    newinfo->diskpath = pathdup;
+    newinfo->correspondstofile = (fromfile != 0);
     newinfo->loaded = 0;
+
+    // Place new entry in hash map and list:
+    _internal_spew3d_texlist_hashmap[idhash %
+        SPEW3D_TEXLIST_IDHASHMAP_SIZE] = (
+            newbucket);
+
+    _internal_spew3d_texlist_count += 1;
     return _internal_spew3d_texlist_count;
 }
 
@@ -167,7 +210,7 @@ spew3d_texture_t spew3d_texture_ByName(
         return 0;
     spew3d_texture_info *tinfo = spew3d_texinfo(tex);
     assert(tinfo != NULL); 
-    assert(!tinfo->fromfile);
+    assert(!tinfo->correspondstofile);
     if (!tinfo->loaded) {
         assert(tex == _internal_spew3d_texlist_count - 1);
         tinfo->w = w;
@@ -177,6 +220,7 @@ spew3d_texture_t spew3d_texture_ByName(
         tinfo->pixels = malloc(4 * pixelcount);
         if (!tinfo->pixels) {
             free(tinfo->idstring);
+            free(tinfo->diskpath);
             _internal_spew3d_texlist_count--;
             return 0;
         }
@@ -192,11 +236,12 @@ void spew3d_texture_Destroy(spew3d_texture_t tid) {
         return;
     spew3d_texture_info *tinfo = spew3d_texinfo(tid);
     assert(tinfo != NULL);
-    assert(!tinfo->fromfile);
+    assert(!tinfo->correspondstofile);
     if (!tinfo->loaded)
         return;
     free(tinfo->pixels);
     free(tinfo->idstring);
+    free(tinfo->diskpath);
     tinfo->idstring = NULL;
     tinfo->pixels = NULL;
     tinfo->loaded = 0;
@@ -206,7 +251,9 @@ void spew3d_texture_Destroy(spew3d_texture_t tid) {
 spew3d_texture_t spew3d_texture_ByNameAsWritableCopy(
         const char *name, const char *original_path
         ) {
-
+    return (
+        _internal_spew3d_texture_ByFileOrName(
+            name, original_path, 0));
 }
 
 #endif  // SPEW3D_IMPLEMENTATION

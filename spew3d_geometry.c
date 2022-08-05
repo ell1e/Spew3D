@@ -1,6 +1,7 @@
 
 #ifdef SPEW3D_IMPLEMENTATION
 
+#include <assert.h>
 #include <SDL2/SDL.h>
 #include <string.h>
 
@@ -85,9 +86,12 @@ int spew3d_geometry_AddCube(
             )) {
         return 0;
     }
+    geometry->vertex_count += 8;
+    geometry->polygon_count += 12;
 
     const double halfedgewidth = (edge_width / 2.0);
     int viter = geometry->vertex_count - 8;
+    assert(viter >= 0);
     const int viterstart = viter;
     while (viter < geometry->vertex_count) {
         const int relidx = (viter - viterstart);

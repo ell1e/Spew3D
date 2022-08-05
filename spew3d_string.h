@@ -12,6 +12,7 @@ static inline uint16_t spew3d_simplehash(const char *k) {
     while (*k != '\0') {
         uint16_t c = *((uint8_t*)k);
         hash = ((hash << 5) + hash) ^ c;
+        k++;
     }
 
     return hash;

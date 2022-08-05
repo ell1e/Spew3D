@@ -6,12 +6,14 @@
 
 
 int main(int argc, const char **argv) {
+    printf("Initializing SDL\n");
     int result = SDL_Init(SDL_INIT_EVERYTHING);
     if (result != 0) {
         fprintf(stderr, "SDL_Init() failed\n");
         return 1;
     }
 
+    printf("Creating window\n");
     SDL_Window *window = SDL_CreateWindow(
         "Spew 3D Cube Example", SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED, 800, 500,
@@ -27,6 +29,7 @@ int main(int argc, const char **argv) {
         return 1;
     }
 
+    printf("Creating a cube\n");
     spew3d_geometry *cube = spew3d_geometry_Create();
     if (cube) {
         if (!spew3d_geometry_AddCubeSimple(
@@ -40,6 +43,7 @@ int main(int argc, const char **argv) {
         fprintf(stderr, "Failed to create geometry\n");
     }
 
+    printf("Entering main loop\n");
     int notquit = 1;
     while (notquit) {
         SDL_Event e = {0};
@@ -57,6 +61,7 @@ int main(int argc, const char **argv) {
         SDL_RenderPresent(renderer);
     }
 
+    printf("Shutting down\n");
     return 0;
 }
 
