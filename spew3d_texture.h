@@ -8,7 +8,7 @@
 typedef uint64_t spew3d_texture_t;
 
 typedef struct spew3d_texture_info {
-    char *nameorfilepath;
+    char *idstring;
     uint8_t loaded, fromfile;
     uint32_t w, h;
     char *pixels;
@@ -29,6 +29,10 @@ static inline spew3d_texture_info *spew3d_texinfo(
 
 spew3d_texture_t spew3d_texture_ByName(
     const char *name, uint32_t w, uint32_t h
+);
+
+spew3d_texture_t spew3d_texture_ByNameAsWritableCopy(
+    const char *name, const char *original_path
 );
 
 void spew3d_texture_Destroy(spew3d_texture_t tid);

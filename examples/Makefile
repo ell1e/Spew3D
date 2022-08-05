@@ -8,4 +8,4 @@ endif
 
 build:
 	cd ../ && $(MAKE)
-	gcc -g -o example_cube$(BINEXT) ./example_cube.c -I../ -lm -lSDL2
+	gcc -g -Og -o example_cube$(BINEXT) ./example_cube.c -I../ -lm -lSDL2
