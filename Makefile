@@ -8,11 +8,15 @@ HEADERS=$(sort $(filter-out ./spew3d.h ./implementation/spew3d_prefix_all.h ./im
 SOURCES=$(sort $(wildcard ./implementation/*.c))
 TESTPROG=$(sort $(patsubst %.c, %$(BINEXT), $(wildcard ./examples/example_*.c)))
 
-all:
+all: amalgamate build-tests
+
+amalgamate:
 	cat implementation/spew3d_prefix_all.h vendor/miniz/include/miniz/miniz.h implementation/spew3d_prefix_miniz_c.h vendor/miniz/include/miniz/miniz.c implementation/spew3d_postfix_miniz_c.h vendor/stb/stb_image.h $(HEADERS) $(SOURCES) > spew3d.h
 
-test:
+build-tests:
 	cd examples && $(MAKE) clean && $(MAKE)
+
+test: amalgamate build-tests
 	cd examples && valgrind ./example_sprite.bin
 
 update-vendor:

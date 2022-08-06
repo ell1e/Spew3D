@@ -7,10 +7,10 @@ BINEXT:=.bin
 endif
 TESTPROG=$(sort $(patsubst %.c, %$(BINEXT), $(wildcard ./example_*.c)))
 
-build: assemble $(TESTPROG)
+build: amalgamate $(TESTPROG)
 
-assemble:
-	cd ../ && $(MAKE)
+amalgamate:
+	cd ../ && $(MAKE) amalgamate
 
 example_%$(BINEXT): example_%.c
 	gcc -g -Og -o $@ $(patsubst %$(BINEXT),%.c, $@) -I../ -lm -lSDL2
