@@ -56,6 +56,10 @@ int spew3d_Init(
         const char *title, int initflags,
         SDL_Window **out_window, SDL_Renderer **out_renderer
         ) {
+    SDL_SetHintWithPriority(
+        SDL_HINT_FRAMEBUFFER_ACCELERATION, "0",
+        SDL_HINT_OVERRIDE);
+
     SDL_Window *window = SDL_CreateWindow(
         title, SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED, 800, 500,

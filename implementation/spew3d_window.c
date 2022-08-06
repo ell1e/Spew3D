@@ -74,9 +74,9 @@ int32_t spew3d_window_CanvasDrawWidth() {
         _internal_spew3d_outputrenderer, &w, &h
     );
     if (w == 0 && h == 0)
-        if (!SDL_GetRendererOutputSize(
+        if (SDL_GetRendererOutputSize(
                 _internal_spew3d_outputrenderer,
-                &w, &h))
+                &w, &h) != 0)
             return 1;
     if (w < 1)
         return w;
@@ -92,9 +92,9 @@ int32_t spew3d_window_CanvasDrawHeight() {
         _internal_spew3d_outputrenderer, &w, &h
     );
     if (w == 0 && h == 0)
-        if (!SDL_GetRendererOutputSize(
+        if (SDL_GetRendererOutputSize(
                 _internal_spew3d_outputrenderer,
-                &w, &h))
+                &w, &h) != 0)
             return 1;
     if (h < 1)
         return h;

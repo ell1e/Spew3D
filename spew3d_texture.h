@@ -34,8 +34,6 @@ typedef uint64_t spew3d_texture_t;
 typedef struct spew3d_texture_info {
     char *idstring, *diskpath;
     uint8_t loaded, loadingfailed, correspondstofile;
-    uint32_t width, height;
-    char *pixels;
 
     void *_internal;
 } spew3d_texture_info;
@@ -61,10 +59,27 @@ void spew3d_texture_Destroy(spew3d_texture_t tid);
 
 int spew3d_texture_Draw(
     spew3d_texture_t tid,
-    int32_t x, int32_t y, double scale, double angle,
+    int32_t x, int32_t y, int centered, double scale, double angle,
     double tint_red, double tint_white, double tint_blue,
     double transparency,
     int withalphachannel
+);
+
+void spew3d_texture_GetSize(
+    spew3d_texture_t tid, int32_t *out_width,
+    int32_t *out_height
+);
+
+const char *spew3d_texture_GetReadonlyPixels(
+    spew3d_texture_t tid
+);
+
+char *spew3d_texture_UnlockPixelsToEdit(
+    spew3d_texture_t tid
+);
+
+void spew3d_texture_LockPixelsToFinishEdit(
+    spew3d_texture_t tid
 );
 
 #endif  // SPEW3D_TEXTURE_H_

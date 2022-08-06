@@ -53,6 +53,11 @@ spew3d_texlist_idhashmap_bucket
 // Extra info struct:
 typedef struct spew3d_texture_extrainfo {
     spew3d_texture_info *parent;
+    uint8_t editlocked;
+
+    char *pixels;
+    uint32_t width, height;
+
     SDL_Texture *sdltexture_alpha, *sdltexture_noalpha;
 } spew3d_texture_extrainfo;
 
@@ -93,6 +98,14 @@ spew3d_texture_info *spew3d_texinfo(
 }
 
 
+static inline spew3d_texture_extrainfo *spew3d_extrainfo(
+        spew3d_texture_t tid
+        ) {
+    spew3d_texture_info *tinfo = spew3d_texinfo(tid);
+    return ((spew3d_texture_extrainfo *)
+        tinfo->_internal);
+}
+
 static int _spew3d_check_texidstring_used(
         const char *id) {
     uint16_t hash = spew3d_simplehash(id);
@@ -115,6 +128,10 @@ static int _spew3d_check_texidstring_used(
 
 static int _internal_spew3d_ForceLoadTexture(spew3d_texture_t tid) {
     spew3d_texture_info *tinfo = _fast_spew3d_texinfo(tid);
+    spew3d_texture_extrainfo *extrainfo = (
+        spew3d_extrainfo(tid)
+    );
+
     assert(tinfo != NULL && tinfo->idstring != NULL);
     if (tinfo->loaded || (!tinfo->correspondstofile &&
             !tinfo->diskpath))
@@ -167,16 +184,18 @@ static int _internal_spew3d_ForceLoadTexture(spew3d_texture_t tid) {
         tinfo->loadingfailed = 1;
         return 0;
     }
-    tinfo->width = w;
-    tinfo->height = h;
-    tinfo->pixels = data32;
+    extrainfo->width = w;
+    extrainfo->height = h;
+    extrainfo->pixels = data32;
     tinfo->loaded = 1;
     #if defined(DEBUG_SPEW3D_TEXTURE)
     fprintf(stderr,
         "spew3d_texture.c: debug: "
         "_internal_spew3d_texture_ForceLoadTexture "
-        "suceeded for texture: \"%s\"\n",
-        tinfo->diskpath);
+        "succeeded for texture: \"%s\" (size: "
+        "%d,%d)\n",
+        tinfo->diskpath, (int)extrainfo->width,
+        (int)extrainfo->height);
     #endif
     return 1;
 }
@@ -192,10 +211,11 @@ static int _internal_spew3d_TextureToGPU(
     if (tinfo->loadingfailed)
         return 0;
     assert(tinfo != NULL && tinfo->idstring != NULL);
-    assert(tinfo->loaded && tinfo->pixels != NULL);
+    assert(tinfo->loaded);
     spew3d_texture_extrainfo *extrainfo = (
-        (spew3d_texture_extrainfo *)tinfo->_internal
+        spew3d_extrainfo(tid)
     );
+    assert(extrainfo != NULL && extrainfo->pixels != NULL);
     if (alpha && extrainfo->sdltexture_alpha) {
         *out_tex = extrainfo->sdltexture_alpha;
         return 1;
@@ -208,8 +228,9 @@ static int _internal_spew3d_TextureToGPU(
         _internal_spew3d_outputrenderer
     ); 
     SDL_Surface *s = SDL_CreateRGBSurfaceFrom(
-        tinfo->pixels, tinfo->width, tinfo->height,
-        32, tinfo->width * 4, 0x000000ff,
+        extrainfo->pixels, extrainfo->width,
+        extrainfo->height,
+        32, extrainfo->width * 4, 0x000000ff,
         0x0000ff00, 0x00ff0000,
         (alpha ? 0xff000000 : 0));
     if (!s)
@@ -233,6 +254,70 @@ static int _internal_spew3d_TextureToGPU(
         *out_tex = extrainfo->sdltexture_noalpha;
         return 1;
     }
+}
+
+
+const char *spew3d_texture_GetReadonlyPixels(
+        spew3d_texture_t tid
+        ) {
+    spew3d_texture_info *tinfo = spew3d_texinfo(tid);
+    if (!_internal_spew3d_ForceLoadTexture(tid))
+        return NULL;
+    return spew3d_extrainfo(tid)->pixels;
+}
+
+
+char *spew3d_texture_UnlockPixelsToEdit(
+        spew3d_texture_t tid
+        ) {
+    spew3d_texture_info *tinfo = spew3d_texinfo(tid);
+    if (!_internal_spew3d_ForceLoadTexture(tid))
+        return NULL;
+    assert(!tinfo->correspondstofile);
+    assert(tinfo->loaded);
+    spew3d_texture_extrainfo *einfo = spew3d_extrainfo(tid);
+    #ifndef NDEBUG
+    assert(!einfo->editlocked);
+    #endif
+    einfo->editlocked = 1;
+    return einfo->pixels;
+}
+
+
+void spew3d_texture_LockPixelsToFinishEdit(
+        spew3d_texture_t tid
+        ) {
+    spew3d_texture_extrainfo *einfo = spew3d_extrainfo(tid);
+    #ifndef NDEBUG
+    assert(!einfo->editlocked);
+    #endif
+    einfo->editlocked = 0;
+    if (einfo->sdltexture_alpha) {
+        SDL_DestroyTexture(einfo->sdltexture_alpha);
+        einfo->sdltexture_alpha = NULL;
+    }
+    if (einfo->sdltexture_noalpha) {
+        SDL_DestroyTexture(einfo->sdltexture_noalpha);
+        einfo->sdltexture_noalpha = NULL;
+    }
+}
+
+
+void spew3d_texture_GetSize(
+        spew3d_texture_t tid, int32_t *out_width,
+        int32_t *out_height
+        ) {
+    if (!_internal_spew3d_ForceLoadTexture(tid)) {
+        *out_width = 0;
+        *out_height = 0;
+        return;
+    }
+    spew3d_texture_extrainfo *extrainfo = (
+        spew3d_extrainfo(tid)
+    );
+    *out_width = extrainfo->width;
+    *out_height = extrainfo->height;
+    return;
 }
 
 
@@ -452,12 +537,16 @@ spew3d_texture_t _internal_spew3d_texture_NewEx(
 
 int spew3d_texture_Draw(
         spew3d_texture_t tid,
-        int32_t x, int32_t y, double scale, double angle,
+        int32_t x, int32_t y, int centered,
+        double scale, double angle,
         double tint_red, double tint_green, double tint_blue,
         double transparency,
         int withalphachannel
         ) {
     spew3d_texture_info *tinfo = _fast_spew3d_texinfo(tid);
+    spew3d_texture_extrainfo *extrainfo = (
+        spew3d_extrainfo(tid)
+    );
     assert(_internal_spew3d_outputwindow != NULL);
     assert(_internal_spew3d_outputrenderer != NULL);
 
@@ -483,8 +572,8 @@ int spew3d_texture_Draw(
         return 0;
 
     uint8_t old_r, old_g, old_b, old_a;
-    if (!SDL_GetRenderDrawColor(renderer,
-            &old_r, &old_g, &old_b, &old_a))
+    if (SDL_GetRenderDrawColor(renderer,
+            &old_r, &old_g, &old_b, &old_a) != 0)
         return 0;
     uint8_t draw_r = fmax(0, fmin(255, tint_red * 256.0));
     uint8_t draw_g = fmax(0, fmin(255, tint_green * 255.0));
@@ -492,22 +581,24 @@ int spew3d_texture_Draw(
     uint8_t draw_a = fmax(0, fmin(255, transparency * 255.0));
     if (draw_a <= 0)
         return 0;
-    if (!SDL_SetRenderDrawColor(renderer,
-            draw_r, draw_g, draw_b, draw_a) ||
+    if (SDL_SetRenderDrawColor(renderer,
+            draw_r, draw_g, draw_b, draw_a) != 0 ||
             SDL_SetRenderDrawBlendMode(renderer,
-            SDL_BLENDMODE_BLEND)) {
+            SDL_BLENDMODE_BLEND) != 0) {
         return 0;
     }
     SDL_Rect r = {0};
-    r.x = x;
-    r.y = y;
-    r.w = tinfo->width;
-    r.h = tinfo->height;
-    if (!SDL_RenderCopyEx(renderer, tex, NULL, &r,
-            angle, NULL, SDL_FLIP_NONE))
+    r.x = x - (centered ?
+        ((int32_t)(extrainfo->width * scale) / 2) : 0);
+    r.y = y - (centered ?
+        ((int32_t)(extrainfo->height * scale) / 2) : 0);
+    r.w = round(extrainfo->width * scale);
+    r.h = round(extrainfo->height * scale);
+    if (SDL_RenderCopyEx(renderer, tex, NULL, &r,
+            angle, NULL, SDL_FLIP_NONE) != 0)
         return 0;
-    if (!SDL_SetRenderDrawColor(renderer,
-            old_r, old_g, old_b, old_a))
+    if (SDL_SetRenderDrawColor(renderer,
+            old_r, old_g, old_b, old_a) != 0)
         return 0;
     return 1;
 }
@@ -533,27 +624,31 @@ spew3d_texture_t spew3d_texture_NewWritable(
     spew3d_texture_info *tinfo = (
         _fast_spew3d_texinfo(tex)
     );
+    spew3d_texture_extrainfo *extrainfo = (
+        spew3d_extrainfo(tex)
+    );
     assert(tinfo != NULL); 
     assert(!tinfo->correspondstofile);
     assert(tinfo->idstring != NULL);
     if (!tinfo->loaded) {
         assert(tex == _internal_spew3d_texlist_count - 1);
-        tinfo->width = w;
-        tinfo->height = h;
+        extrainfo->width = w;
+        extrainfo->height = h;
         int64_t pixelcount = ((int64_t)w) * ((int64_t)h);
         if (pixelcount <= 0) pixelcount = 1;
-        tinfo->pixels = malloc(4 * pixelcount);
-        if (!tinfo->pixels) {
+        extrainfo->pixels = malloc(4 * pixelcount);
+        if (!extrainfo->pixels) {
             int uregcount = (
                 _unregister_texid_from_hashmap(tinfo->idstring, 0)
             );
             assert(uregcount == 1);
+            free(tinfo->_internal);
             free(tinfo->idstring);
             free(tinfo->diskpath);
             _internal_spew3d_texlist_count--;
             return 0;
         }
-        memset(tinfo->pixels, 0, 4 * pixelcount);
+        memset(extrainfo->pixels, 0, 4 * pixelcount);
         tinfo->loaded = 1;
     }
     return tex;
@@ -575,20 +670,21 @@ void spew3d_texture_Destroy(spew3d_texture_t tid) {
     );
     assert(uregcount == 1);
     spew3d_texture_extrainfo *extrainfo = (
-        (spew3d_texture_extrainfo *)tinfo->_internal
+        spew3d_extrainfo(tid)
     );
     if (extrainfo) {
+        free(extrainfo->pixels);
         if (extrainfo->sdltexture_alpha)
             SDL_DestroyTexture(extrainfo->sdltexture_alpha);
         if (extrainfo->sdltexture_noalpha)
             SDL_DestroyTexture(extrainfo->sdltexture_noalpha);
+        free(extrainfo);
     }
-    free(tinfo->pixels);
     free(tinfo->idstring);
     free(tinfo->diskpath);
     tinfo->idstring = NULL;
     tinfo->diskpath = NULL;
-    tinfo->pixels = NULL;
+    tinfo->_internal = NULL;
     tinfo->loaded = 0;
 }
 
