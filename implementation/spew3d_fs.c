@@ -96,14 +96,16 @@ enum {
     _WIN32_OPEN_DIR = 0x2,
     OPEN_ONLY_IF_NOT_LINK = 0x4
 };
-char *AS_U8_FROM_U16(const uint16_t *s);
-uint16_t *AS_U16(const char *s);
-int _spew3d_fs_RemoveFileEx(
+S3DEXP char *AS_U8_FROM_U16(const uint16_t *s);
+S3DEXP uint16_t *AS_U16(const char *s);
+
+
+S3DHID int _spew3d_fs_RemoveFileEx(
     const char *path, int *error,
     int allowdirs
 );
 
-int spew3d_fs_IsObviouslyInvalidPath(const char *p) {
+S3DEXP int spew3d_fs_IsObviouslyInvalidPath(const char *p) {
     int64_t i = 0;
     const int64_t plen = strlen(p);
     while (i < plen) {
@@ -123,7 +125,7 @@ int spew3d_fs_IsObviouslyInvalidPath(const char *p) {
 }
 
 
-h64filehandle spew3d_fs_OpenFromPathAsOSHandleEx(
+S3DHID h64filehandle spew3d_fs_OpenFromPathAsOSHandleEx(
         const char *path, const char *mode, int flags, int *err
         ) {
     if (spew3d_fs_IsObviouslyInvalidPath(path)) {
@@ -307,7 +309,7 @@ h64filehandle spew3d_fs_OpenFromPathAsOSHandleEx(
 }
 
 
-FILE *spew3d_fs_OpenFromPath(
+S3DEXP FILE *spew3d_fs_OpenFromPath(
         const char *path, const char *mode, int *err
         ) {
     if (spew3d_fs_IsObviouslyInvalidPath(path)) {
@@ -402,7 +404,9 @@ FILE *spew3d_fs_OpenFromPath(
 }
 
 
-int spew3d_fs_GetSize(const char *path, uint64_t *size, int *err) {
+S3DEXP int spew3d_fs_GetSize(
+        const char *path, uint64_t *size, int *err
+        ) {
     #if defined(ANDROID) || defined(__ANDROID__) || \
         defined(__unix__) || defined(__linux__) || \
         defined(__APPLE__) || defined(__OSX__)
@@ -452,7 +456,7 @@ int spew3d_fs_GetSize(const char *path, uint64_t *size, int *err) {
 }
 
 
-int spew3d_fs_GetComponentCount(const char *path) {
+S3DEXP int spew3d_fs_GetComponentCount(const char *path) {
     int i = 0;
     int component_count = 0;
     #if defined(_WIN32) || defined(_WIN64)
@@ -479,7 +483,7 @@ int spew3d_fs_GetComponentCount(const char *path) {
 }
 
 
-char *spew3d_fs_RemoveDoubleSlashes(const char *path) {
+S3DEXP char *spew3d_fs_RemoveDoubleSlashes(const char *path) {
     if (!path)
         return NULL;
     char *p = strdup(path);
@@ -524,7 +528,7 @@ char *spew3d_fs_RemoveDoubleSlashes(const char *path) {
 }
 
 
-char *spew3d_fs_Normalize(const char *path) {
+S3DEXP char *spew3d_fs_Normalize(const char *path) {
     char *result = spew3d_fs_RemoveDoubleSlashes(path);
     if (!result)
         return NULL;
@@ -641,7 +645,7 @@ char *spew3d_fs_Normalize(const char *path) {
 }
 
 
-int spew3d_fs_TargetExists(const char *path, int *exists) {
+S3DEXP int spew3d_fs_TargetExists(const char *path, int *exists) {
     #if defined(ANDROID) || defined(__ANDROID__) || \
         defined(__unix__) || defined(__linux__) || \
         defined(__APPLE__) || defined(__OSX__)
@@ -679,7 +683,7 @@ int spew3d_fs_TargetExists(const char *path, int *exists) {
 }
 
 
-int spew3d_fs_IsDirectory(const char *path, int *result) {
+S3DEXP int spew3d_fs_IsDirectory(const char *path, int *result) {
     #if defined(ANDROID) || defined(__ANDROID__) || defined(__unix__) || \
             defined(__linux__) || defined(__APPLE__) || defined(__OSX__)
     struct stat sb;
@@ -717,7 +721,7 @@ int spew3d_fs_IsDirectory(const char *path, int *result) {
 }
 
 
-int spew3d_fs_CreateDirectoryEx(
+S3DEXP int spew3d_fs_CreateDirectoryEx(
         const char *path, int onlyuserreadable
         ) {
     #if defined(ANDROID) || defined(__ANDROID__) || defined(__unix__) || defined(__linux__) || defined(__APPLE__) || defined(__OSX__)
@@ -737,12 +741,12 @@ int spew3d_fs_CreateDirectoryEx(
 }
 
 
-int spew3d_fs_CreateDirectory(const char *path) {
+S3DEXP int spew3d_fs_CreateDirectory(const char *path) {
     return spew3d_fs_CreateDirectoryEx(path, 0);
 }
 
 
-void spew3d_fs_FreeFolderList(char **list) {
+S3DEXP void spew3d_fs_FreeFolderList(char **list) {
     int i = 0;
     while (list[i]) {
         free(list[i]);
@@ -752,7 +756,7 @@ void spew3d_fs_FreeFolderList(char **list) {
 }
 
 
-int spew3d_fs_ListFolderEx(
+S3DEXP int spew3d_fs_ListFolderEx(
         const char *path, char ***contents,
         int returnFullPath, int allowsymlink,
         int *error
@@ -1034,7 +1038,7 @@ int spew3d_fs_ListFolderEx(
 }
 
 
-int spew3d_fs_ListFolder(
+S3DEXP int spew3d_fs_ListFolder(
         const char *path, char ***contents,
         int returnFullPath, int *error
         ) {
@@ -1044,7 +1048,7 @@ int spew3d_fs_ListFolder(
 }
 
 
-char *spew3d_fs_GetCurrentDirectory() {
+S3DEXP char *spew3d_fs_GetCurrentDirectory() {
     #if defined(_WIN32) || defined(_WIN64)
     DWORD size = GetCurrentDirectory(0, NULL);
     char *s = malloc(size + 1);
@@ -1078,7 +1082,9 @@ char *spew3d_fs_GetCurrentDirectory() {
 }
 
 
-char *spew3d_fs_Join(const char *path1, const char *path2_orig) {
+S3DEXP char *spew3d_fs_Join(
+        const char *path1, const char *path2_orig
+        ) {
     // Quick result paths:
     if (path2_orig && (
             strcmp(path2_orig, ".") == 0 || strcmp(path2_orig, "") == 0
@@ -1155,7 +1161,7 @@ char *spew3d_fs_Join(const char *path1, const char *path2_orig) {
 }
 
 
-int spew3d_fs_IsAbsolutePath(const char *path) {
+S3DEXP int spew3d_fs_IsAbsolutePath(const char *path) {
     if (strlen(path) > 0 && path[0] == '.')
         return 0;
     #if (!defined(_WIN32) && !defined(_WIN64))
@@ -1171,7 +1177,7 @@ int spew3d_fs_IsAbsolutePath(const char *path) {
 }
 
 
-char *spew3d_fs_ToAbsolutePath(const char *path) {
+S3DEXP char *spew3d_fs_ToAbsolutePath(const char *path) {
     if (spew3d_fs_IsAbsolutePath(path))
         return strdup(path);
     char *cwd = spew3d_fs_GetCurrentDirectory();
@@ -1183,7 +1189,7 @@ char *spew3d_fs_ToAbsolutePath(const char *path) {
 }
 
 
-int spew3d_fs_LaunchExecutable(
+S3DEXP int spew3d_fs_LaunchExecutable(
         const char *path, int argcount, const char **_orig_argv
         ) {
     int argc = 0;
@@ -1325,7 +1331,7 @@ int spew3d_fs_LaunchExecutable(
 }
 
 
-char *spew3d_fs_GetSysTempdir() {
+S3DEXP char *spew3d_fs_GetSysTempdir() {
     #if defined(_WIN32) || defined(_WIN64)
     int tempbufwsize = 512;
     wchar_t *tempbufw = malloc(tempbufwsize * sizeof(wchar_t));
@@ -1376,7 +1382,7 @@ char *spew3d_fs_GetSysTempdir() {
 }
 
 
-int spew3d_fs_RemoveFolderRecursively(
+S3DEXP int spew3d_fs_RemoveFolderRecursively(
         const char *path, int *error
         ) {
     if (spew3d_fs_IsObviouslyInvalidPath(path)) {
@@ -1548,7 +1554,7 @@ int spew3d_fs_RemoveFolderRecursively(
 }
 
 
-int _spew3d_fs_RemoveFileEx(
+S3DHID int _spew3d_fs_RemoveFileEx(
         const char *path, int *error,
         int allowdirs
         ) {
@@ -1652,12 +1658,12 @@ int _spew3d_fs_RemoveFileEx(
 }
 
 
-int spew3d_fs_RemoveFile(const char *target, int *err) {
+S3DEXP int spew3d_fs_RemoveFile(const char *target, int *err) {
     return _spew3d_fs_RemoveFileEx(target, err, 0);
 }
 
 
-FILE *_spew3d_fs_TempFile_SingleTry(
+S3DEXP FILE *_spew3d_fs_TempFile_SingleTry(
         int subfolder, int folderonly,
         const char *prefix, const char *suffix,
         char **folder_path, char **path,
@@ -1819,7 +1825,7 @@ FILE *_spew3d_fs_TempFile_SingleTry(
 }
 
 
-FILE *spew3d_fs_TempFile(
+S3DEXP FILE *spew3d_fs_TempFile(
         int subfolder, int folderonly,
         const char *prefix, const char *suffix,
         char **folder_path, char **path

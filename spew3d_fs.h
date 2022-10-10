@@ -48,66 +48,66 @@ enum {
     FSERR_OTHERERROR = -15
 };
 
-FILE *spew3d_fs_OpenFromPath(
+S3DEXP FILE *spew3d_fs_OpenFromPath(
     const char *path, const char *mode, int *err
 );
 
-int spew3d_fs_GetSize(
+S3DEXP int spew3d_fs_GetSize(
     const char *path, uint64_t *size, int *err
 );
 
-int spew3d_fs_GetComponentCount(const char *path);
+S3DEXP int spew3d_fs_GetComponentCount(const char *path);
 
-char *spew3d_fs_RemoveDoubleSlashes(const char *path);
+S3DEXP char *spew3d_fs_RemoveDoubleSlashes(const char *path);
 
-int spew3d_fs_IsDirectory(const char *path, int *result);
+S3DEXP int spew3d_fs_IsDirectory(const char *path, int *result);
 
-int spew3d_fs_TargetExists(const char *path, int *exists);
+S3DEXP int spew3d_fs_TargetExists(const char *path, int *exists);
 
-char *spew3d_fs_Normalize(const char *path);
+S3DEXP char *spew3d_fs_Normalize(const char *path);
 
-int spew3d_fs_CreateDirectoryEx(
+S3DEXP int spew3d_fs_CreateDirectoryEx(
     const char *path, int onlyuserreadable
 );
 
-int spew3d_fs_CreateDirectory(const char *path);
+S3DEXP int spew3d_fs_CreateDirectory(const char *path);
 
-void spew3d_fs_FreeFolderList(char **list);
+S3DEXP void spew3d_fs_FreeFolderList(char **list);
 
-int spew3d_fs_ListFolderEx(
+S3DEXP int spew3d_fs_ListFolderEx(
     const char *path, char ***contents,
     int returnFullPath, int allowsymlink,
     int *error
 );
 
-int spew3d_fs_ListFolder(
+S3DEXP int spew3d_fs_ListFolder(
     const char *path, char ***contents,
     int returnFullPath, int *error
 );
 
-char *spew3d_fs_GetCurrentDirectory();
+S3DEXP char *spew3d_fs_GetCurrentDirectory();
 
-int spew3d_fs_IsAbsolutePath(const char *path);
+S3DEXP int spew3d_fs_IsAbsolutePath(const char *path);
 
-char *spew3d_fs_ToAbsolutePath(const char *path);
+S3DEXP char *spew3d_fs_ToAbsolutePath(const char *path);
 
-int spew3d_fs_LaunchExecutable(
+S3DEXP int spew3d_fs_LaunchExecutable(
     const char *path, int argcount, const char **_orig_argv
 );
 
-char *spew3d_fs_Join(
+S3DEXP char *spew3d_fs_Join(
     const char *path1, const char *path2_orig
 );
 
-char *spew3d_fs_GetSysTempdir();
+S3DEXP char *spew3d_fs_GetSysTempdir();
 
-int spew3d_fs_RemoveFile(const char *path, int *error);
+S3DEXP int spew3d_fs_RemoveFile(const char *path, int *error);
 
-int spew3d_fs_RemoveFolderRecursively(
+S3DEXP int spew3d_fs_RemoveFolderRecursively(
     const char *path, int *error
 );
 
-FILE *spew3d_fs_TempFile(
+S3DEXP FILE *spew3d_fs_TempFile(
     int subfolder, int folderonly,
     const char *prefix, const char *suffix,
     char **folder_path, char **path

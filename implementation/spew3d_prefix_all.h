@@ -28,6 +28,18 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // XXX: Header-guard intentionally missing!
 
+#if !defined(S3DEXP) && !defined(SPEW3D_OPTION_DISABLE_DLLEXPORT)
+#if (defined(_WIN32) || defined(_WIN64))
+#define S3DEXP __declspec(dllexport)
+#if defined(__MINGW32__) || defined(__MINGW64__)
+#define S3DHID __attribute__ ((visibility ("hidden")))
+#endif
+#else
+#define S3DEXP __attribute__ ((visibility ("default")))
+#define S3DHID __attribute__ ((visibility ("hidden")))
+#endif
+#endif
+
 // Try to ensure 64bit file handling:
 #define _FILE_OFFSET_BITS 64
 #ifndef __USE_LARGEFILE64

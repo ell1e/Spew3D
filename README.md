@@ -66,6 +66,26 @@ your gcc or clang compiler flags for your project, or include
 `spew3d.h` before whatever other header that pulls in `stdio.h`.*
 
 
+## Options
+
+Spew3D has some options which you can use via `-DSPEW3D_OPTION...`
+with gcc/mingw, or defining them **before** including `spew3d.h`.
+Always specify the same ones wherever you include it!
+
+Available options:
+
+- `SPEW3D_OPTION_DISABLE_DLLEXPORT`: If defined, Spew3D will
+  not mark its functions for shared library symbol export.
+  By default, it will.
+
+- `SPEW3D_OPTION_DISABLE_SDL`: If defined, allows compiling
+  with no need for SDL2 whatsoever. It will also disable all
+  graphical functions and sound output, but all other functionality
+  remains available. This includes image loading, audio decoding
+  without actual playback, threading and file system helpers,
+  the Virtual File System, and so on.
+
+
 ## License
 
 Spew3D is licensed under the MIT license, [see here](LICENSE.md).
