@@ -88,7 +88,8 @@ Available options:
 
 ## License
 
-Spew3D is licensed under the MIT license, [see here](LICENSE.md).
+Spew3D is licensed under a BSD license or an Apache 2
+License, [see here for details](LICENSE.md).
 It includes other projects baked in, see `vendor` folder in the
 repository.
 
