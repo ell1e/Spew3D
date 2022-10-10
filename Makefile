@@ -4,14 +4,14 @@ BINEXT:=.exe
 else
 BINEXT:=.bin
 endif
-HEADERS=$(sort $(filter-out ./spew3d.h ./implementation/spew3d_prefix_all.h ./implementation/spew3d_prefix_miniz_c.h ./implementation/spew3d_postfix_miniz_c.h,$(wildcard ./*.h) $(wildcard ./implementation/*.h)))
+HEADERS=$(sort $(filter-out ./include/spew3d.h ./implementation/spew3d_prefix_all.h ./implementation/spew3d_prefix_miniz_c.h ./implementation/spew3d_postfix_miniz_c.h,$(wildcard ./include/*.h) $(wildcard ./implementation/*.h)))
 SOURCES=$(sort $(wildcard ./implementation/*.c))
 TESTPROG=$(sort $(patsubst %.c, %$(BINEXT), $(wildcard ./examples/example_*.c)))
 
 all: amalgamate build-tests
 
 amalgamate:
-	cat implementation/spew3d_prefix_all.h vendor/miniz/include/miniz/miniz.h implementation/spew3d_prefix_miniz_c.h vendor/miniz/include/miniz/miniz.c implementation/spew3d_postfix_miniz_c.h vendor/stb/stb_image.h $(HEADERS) $(SOURCES) > spew3d.h
+	cat implementation/spew3d_prefix_all.h vendor/miniz/include/miniz/miniz.h implementation/spew3d_prefix_miniz_c.h vendor/miniz/include/miniz/miniz.c implementation/spew3d_postfix_miniz_c.h vendor/stb/stb_image.h $(HEADERS) $(SOURCES) > include/spew3d.h
 
 build-tests:
 	cd examples && $(MAKE) clean && $(MAKE)
@@ -28,4 +28,4 @@ update-vendor:
 
 clean:
 	rm -f $(TESTPROG)
-	rm -f ./spew3d.h
+	rm -f ./include/spew3d.h

@@ -49,8 +49,9 @@ https://libsdl.org) to your linked libraries.
 ## Documentation
 
 For now, please refer to the header files themselves like
-[spew3d_init.h](spew3d_init.h), [spew3d_texture.h](spew3d_texture.h),
-and the `examples` folder for documentation.
+[spew3d_init.h](./include/spew3d_init.h),
+[spew3d_texture.h](./include/spew3d_texture.h), etc.
+and the ['examples' folder](./examples/) for documentation.
 
 
 ### Common Compilation Problems

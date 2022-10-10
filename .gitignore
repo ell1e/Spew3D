@@ -2,4 +2,5 @@ vgcore.*
 /examples/example_*.bin
 /examples/example_*.exe
 /spew3d.h
+/include/spew3d.h
 ~*
