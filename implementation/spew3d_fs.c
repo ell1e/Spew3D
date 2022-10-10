@@ -98,7 +98,10 @@ enum {
 };
 char *AS_U8_FROM_U16(const uint16_t *s);
 uint16_t *AS_U16(const char *s);
-
+int _spew3d_fs_RemoveFileEx(
+    const char *path, int *error,
+    int allowdirs
+);
 
 int spew3d_fs_IsObviouslyInvalidPath(const char *p) {
     int64_t i = 0;
@@ -1429,8 +1432,8 @@ int spew3d_fs_RemoveFolderRecursively(
                 }
                 // Instantly remove it instead:
                 if (operror != FSERR_NOSUCHTARGET &&
-                        !spew3d_fs_RemoveFileOrEmptyDir(
-                        scan_next, &operror
+                        !_spew3d_fs_RemoveFileEx(
+                        scan_next, &operror, 1
                         )) {
                     if (operror == FSERR_NOSUCHTARGET) {
                         // Maybe it was removed in parallel?
@@ -1510,9 +1513,9 @@ int spew3d_fs_RemoveFolderRecursively(
     // to outer):
     int64_t k = queue_len - 1;
     while (k >= 0) {
-        if (!spew3d_fs_RemoveFileOrEmptyDir(
+        if (!_spew3d_fs_RemoveFileEx(
                 removal_queue[k],
-                &operror
+                &operror, 1
                 )) {
             if (operror == FSERR_NOSUCHTARGET) {
                 // Maybe it was removed in parallel?
@@ -1526,8 +1529,8 @@ int spew3d_fs_RemoveFolderRecursively(
         k--;
     }
     free(removal_queue);
-    if (!spew3d_fs_RemoveFileOrEmptyDir(
-            path, &operror
+    if (!_spew3d_fs_RemoveFileEx(
+            path, &operror, 1
             )) {
         if (operror == FSERR_NOSUCHTARGET) {
             // Maybe it was removed in parallel?
@@ -1545,7 +1548,10 @@ int spew3d_fs_RemoveFolderRecursively(
 }
 
 
-int spew3d_fs_RemoveFileOrEmptyDir(const char *path, int *error) {
+int _spew3d_fs_RemoveFileEx(
+        const char *path, int *error,
+        int allowdirs
+        ) {
     #if defined(_WIN32) || defined(_WIN64)
     wchar_t *path16 = (wchar_t*)AS_U16(path);
     if (!path16) {
@@ -1557,6 +1563,10 @@ int spew3d_fs_RemoveFileOrEmptyDir(const char *path, int *error) {
         *error = FSERR_OTHERERROR;
         if (werror == ERROR_DIRECTORY_NOT_SUPPORTED ||
                 werror == ERROR_DIRECTORY) {
+            if (!allowdirs) {
+                *error = FSERR_TARGETNOTAFILE;
+                return 0;
+            }
             if (RemoveDirectoryW(path16) != TRUE) {
                 free(path16);
                 werror = GetLastError();
@@ -1611,12 +1621,20 @@ int spew3d_fs_RemoveFileOrEmptyDir(const char *path, int *error) {
     *error = FSERR_SUCCESS;
     return 1;
     #else
-    int result = remove(path);
+    #if defined(_WIN32) || defined(_WIN64)
+    int result;
+    if (allowdirs) {
+        result = remove(path);
+    } else { 
+        result = unlink(path);
+    }
     if (result < 0) {
         *error = FSERR_OTHERERROR;
         if (errno == EACCES || errno == EPERM ||
                 errno == EROFS) {
             *error = FSERR_NOPERMISSION;
+        } else if (errno == EISDIR) {
+            *error = FSERR_TARGETNOTAFILE;
         } else if (errno == ENOTEMPTY) {
             *error = FSERR_NONEMPTYDIRECTORY;
         } else if (errno == ENOENT || errno == ENAMETOOLONG ||
@@ -1627,9 +1645,15 @@ int spew3d_fs_RemoveFileOrEmptyDir(const char *path, int *error) {
         }
         return 0;
     }
+    #endif
     *error = FSERR_SUCCESS;
     return 1;
     #endif
+}
+
+
+int spew3d_fs_RemoveFile(const char *target, int *err) {
+    return _spew3d_fs_RemoveFileEx(target, err, 0);
 }
 
 
@@ -1733,8 +1757,8 @@ FILE *_spew3d_fs_TempFile_SingleTry(
     if (!file_path) {
         int error = 0;
         if (subfolder) {
-            spew3d_fs_RemoveFileOrEmptyDir(
-                *folder_path, &error
+            _spew3d_fs_RemoveFileEx(
+                *folder_path, &error, 1
             );
         }
         free(combined_path);

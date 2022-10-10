@@ -101,7 +101,7 @@ char *spew3d_fs_Join(
 
 char *spew3d_fs_GetSysTempdir();
 
-int spew3d_fs_RemoveFileOrEmptyDir(const char *path, int *error);
+int spew3d_fs_RemoveFile(const char *path, int *error);
 
 int spew3d_fs_RemoveFolderRecursively(
     const char *path, int *error

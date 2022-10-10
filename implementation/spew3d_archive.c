@@ -323,7 +323,7 @@ const char *_spew3d_archive_GetFileCachePath(
             a->extract_cache_count
             ]) {
         int error = 0;
-        spew3d_fs_RemoveFileOrEmptyDir(
+        spew3d_fs_RemoveFile(
             full_path, &error
         );
         spew3d_fs_RemoveFolderRecursively(
@@ -704,7 +704,7 @@ void spew3d_archive_Close(spew3darchive *a) {
         int64_t i = 0;
         while (i < a->extract_cache_count) {
             int error = 0;
-            spew3d_fs_RemoveFileOrEmptyDir(
+            spew3d_fs_RemoveFile(
                 a->extract_cache_temp_path[i],
                 &error
             );
