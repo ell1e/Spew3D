@@ -36,10 +36,10 @@ license, see accompanied LICENSE.md.
 
 //#define _SPEW3D_GLOBDEBUG
 
-S3DEXP int spew3d_globmatchbuf(
+S3DEXP int spew3d_wildcardmatchbuf(
         const uint8_t *pattern, size_t patternlen,
         const uint8_t *value, size_t valuelen,
-        int doubleglob_for_paths, int is_winpath
+        int doublestar_for_paths, int backslash_paths
         ) {
     #ifdef _SPEW3D_GLOBDEBUG
     char _patternstrbuf[64];
@@ -63,8 +63,8 @@ S3DEXP int spew3d_globmatchbuf(
             i += 1;
         }
         _valuestrbuf[i] = '\0';
-        printf("spew3d_glob.c: debug: "
-            "spew3d_globmatchbuf(\"%s\", %d, "
+        printf("spew3d_wildcard.c: debug: "
+            "spew3d_wildcardmatchbuf(\"%s\", %d, "
             "\"%s\", %d, ...) called\n",
             _patternstrbuf, (int)patternlen,
             _valuestrbuf, (int)valuelen);
@@ -91,11 +91,11 @@ S3DEXP int spew3d_globmatchbuf(
         is_escaped = 0;
         i++;
     }
-    if (globcount > SPEW3D_MAX_GLOBS) {
+    if (globcount > SPEW3D_MAX_ASTERISKS) {
         #ifdef _SPEW3D_GLOBDEBUG
-        printf("spew3d_glob.c: debug: "
-            "spew3d_globmatchbuf() mismatch, "
-            "pattern exceeds glob limit\n");
+        printf("spew3d_wildcard.c: debug: "
+            "spew3d_wildcardmatchbuf() mismatch, "
+            "pattern exceeds asterisk limit\n");
         #endif
         return 0;
     }
@@ -106,8 +106,8 @@ S3DEXP int spew3d_globmatchbuf(
     i = 0;
     while (i < patternlen && i2 < valuelen) {
         #ifdef _SPEW3D_GLOBDEBUG
-        printf("spew3d_glob.c: debug: "
-            "spew3d_globmatchbuf() comparing "
+        printf("spew3d_wildcard.c: debug: "
+            "spew3d_wildcardmatchbuf() comparing "
             "'%c' and '%c'\n",
             pattern[i], value[i2]);
         #endif
@@ -117,31 +117,31 @@ S3DEXP int spew3d_globmatchbuf(
             continue;
         }
         if (!is_escaped && pattern[i] == '?' &&
-                (!doubleglob_for_paths ||
+                (!doublestar_for_paths ||
                 (value[i2] != '/' &&
-                (!is_winpath || value[i2] != '\\')))) {
+                (!backslash_paths || value[i2] != '\\')))) {
             i++;
             i2++;
             continue;
         }
         if (!is_escaped && pattern[i] == '*') {
-            int atdoubleglob = 0;
+            int atdoublestar = 0;
             while (i + 1 < patternlen && pattern[i + 1] == '*') {
-                atdoubleglob = 1;
+                atdoublestar = 1;
                 i++;
             }
             const uint8_t *remainingpattern = NULL;
             size_t remainingpatternlen = 0;
             if (i + 1 >= patternlen) {  // Trailing last '*':
-                if (!doubleglob_for_paths)  // Matches everything, done!
+                if (!doublestar_for_paths)  // Matches everything, done!
                     return 1;
                 // Make sure remaining value has no path separator:
                 while (i2 < valuelen) {
                     if (value[i2] == '/' ||
-                            (is_winpath && value[i2] == '\\')) {
+                            (backslash_paths && value[i2] == '\\')) {
                         #ifdef _SPEW3D_GLOBDEBUG
-                        printf("spew3d_glob.c: debug: "
-                            "spew3d_globmatchbuf() mismatch at "
+                        printf("spew3d_wildcard.c: debug: "
+                            "spew3d_wildcardmatchbuf() mismatch at "
                             "pattern position %d\n", (int)i);
                         #endif
                         return 0;
@@ -149,8 +149,8 @@ S3DEXP int spew3d_globmatchbuf(
                     i2++;
                 }
                 #ifdef _SPEW3D_GLOBDEBUG
-                printf("spew3d_glob.c: debug: "
-                    "spew3d_globmatchbuf() matched!\n");
+                printf("spew3d_wildcard.c: debug: "
+                    "spew3d_wildcardmatchbuf() matched!\n");
                 #endif
                 return 1;
             }
@@ -158,16 +158,16 @@ S3DEXP int spew3d_globmatchbuf(
             remainingpattern = &pattern[i + 1];
             remainingpatternlen = patternlen - (i + 1);
             while (i2 < valuelen) {
-                if (doubleglob_for_paths && !atdoubleglob &&
+                if (doublestar_for_paths && !atdoublestar &&
                         (value[i2] == '/' ||
-                        (is_winpath && value[i2] == '\\'))) {
+                        (backslash_paths && value[i2] == '\\'))) {
                     // Encountered a path sep in our pattern.
                     // This is a hard boundary where we need to stop
                     // trying, unless our pattern also has a path sep
                     // right next:
                     if (remainingpatternlen > 0 && (
                             remainingpattern[0] == '/' ||
-                            (is_winpath &&
+                            (backslash_paths &&
                             remainingpattern[0] == '\\'))) {
                         remainingpattern++;
                         remainingpatternlen--;
@@ -177,7 +177,7 @@ S3DEXP int spew3d_globmatchbuf(
                     if (remainingpatternlen > 1 &&
                             remainingpattern[0] == '^' && (
                             remainingpattern[1] == '/' ||
-                            (is_winpath &&
+                            (backslash_paths &&
                             remainingpattern[1] == '\\'))) {
                         remainingpattern++;
                         remainingpatternlen--;
@@ -185,22 +185,22 @@ S3DEXP int spew3d_globmatchbuf(
                         continue;
                     }
                     #ifdef _SPEW3D_GLOBDEBUG
-                    printf("spew3d_glob.c: debug: "
-                        "spew3d_globmatchbuf() mismatch at "
+                    printf("spew3d_wildcard.c: debug: "
+                        "spew3d_wildcardmatchbuf() mismatch at "
                         "pattern position %d\n", (int)i);
                     #endif
                     return 0;
                 }
                 // Try to match remaining substring:
-                int result = spew3d_globmatchbuf(
+                int result = spew3d_wildcardmatchbuf(
                     remainingpattern, remainingpatternlen,
                     &value[i2], valuelen - i2,
-                    doubleglob_for_paths, is_winpath
+                    doublestar_for_paths, backslash_paths
                 );
                 if (result) {
                     #ifdef _SPEW3D_GLOBDEBUG
-                    printf("spew3d_glob.c: debug: "
-                        "spew3d_globmatchbuf() matched via "
+                    printf("spew3d_wildcard.c: debug: "
+                        "spew3d_wildcardmatchbuf() matched via "
                         "recursion!\n");
                     #endif
                     return 1;
@@ -208,16 +208,19 @@ S3DEXP int spew3d_globmatchbuf(
                 i2++;
             }
             #ifdef _SPEW3D_GLOBDEBUG
-            printf("spew3d_glob.c: debug: "
-                "spew3d_globmatchbuf() mismatch at "
+            printf("spew3d_wildcard.c: debug: "
+                "spew3d_wildcardmatchbuf() mismatch at "
                 "pattern position %d\n", (int)i);
             #endif
             return 0;
         }
-        if (pattern[i] != value[i2]) {
+        if (pattern[i] != value[i2] && (
+                !backslash_paths ||
+                (pattern[i] != '/' && pattern[i] != '\\') ||
+                (value[i2] != '/' && value[i2] != '\\'))) {
             #ifdef _SPEW3D_GLOBDEBUG
-            printf("spew3d_glob.c: debug: "
-                "spew3d_globmatchbuf() mismatch at "
+            printf("spew3d_wildcard.c: debug: "
+                "spew3d_wildcardmatchbuf() mismatch at "
                 "pattern position %d\n", (int)i);
             #endif
             return 0;
@@ -228,28 +231,28 @@ S3DEXP int spew3d_globmatchbuf(
     }
     if (i >= patternlen && i2 >= valuelen) {
         #ifdef _SPEW3D_GLOBDEBUG
-        printf("spew3d_glob.c: debug: "
-            "spew3d_globmatchbuf() matched!\n");
+        printf("spew3d_wildcard.c: debug: "
+            "spew3d_wildcardmatchbuf() matched!\n");
         #endif
         return 1;
     }
     #ifdef _SPEW3D_GLOBDEBUG
-    printf("spew3d_glob.c: debug: "
-        "spew3d_globmatchbuf() mismatch at "
+    printf("spew3d_wildcard.c: debug: "
+        "spew3d_wildcardmatchbuf() mismatch at "
         "pattern position %d\n", (int)i);
     #endif
     return 0;
 }
 
 
-S3DEXP int spew3d_globmatch(
+S3DEXP int spew3d_wildcardmatch(
         const char *pattern, const char *value,
-        int doubleglob_for_paths, int is_winpath
+        int doublestar_for_paths, int backslash_paths
         ) {
-    return spew3d_globmatchbuf(
+    return spew3d_wildcardmatchbuf(
         pattern, strlen(pattern),
         value, strlen(value),
-        doubleglob_for_paths, is_winpath
+        doublestar_for_paths, backslash_paths
     );
 }
 

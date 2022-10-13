@@ -25,20 +25,20 @@ Alternatively, at your option, this file is offered under the Apache 2
 license, see accompanied LICENSE.md.
 */
 
-#ifndef SPEW3D_GLOB_H_
-#define SPEW3D_GLOB_H_
+#ifndef SPEW3D_WILDCARD_H_
+#define SPEW3D_WILDCARD_H_
 
 #include <stdint.h>
 
 
 /// The following setting controls the maximum amount of '*' or "**"
-/// allowed per pattern for spew3d_globmatch(). This prevents recursion
+/// allowed per pattern for spew3d_wildcardmatch(). This prevents recursion
 /// crashes or excessive hangs when facing too complex, bad patterns.
-#ifndef SPEW3D_MAX_GLOBS
-#define SPEW3D_MAX_GLOBS 5
+#ifndef SPEW3D_MAX_ASTERISKS
+#define SPEW3D_MAX_ASTERISKS 5
 #endif
 
-/// spew3d_globmatch() matches a glob pattern, like e.g. "abc*" against
+/// spew3d_wildcardmatch() matches a glob pattern, like e.g. "abc*" against
 /// "abctest".
 ///
 /// Special characters:
@@ -56,23 +56,24 @@ license, see accompanied LICENSE.md.
 /// match everything except for path separators, and only a "**" double
 /// star/double glob will match any sub expression including separators.
 ///
-/// @param is_winpath
-/// If parameter is_winpath is set to 0, only '/' is treated as
-/// path separator. If set to 1, '/' and '\\' are treated as separators.
-S3DEXP int spew3d_globmatch(
+/// @param backslash_paths
+/// If parameter backslash_paths is set to 0, only '/' is treated as
+/// path separator. If set to 1, '/' and '\\' are treated as separators
+/// and will generally compare as being equal.
+S3DEXP int spew3d_wildcardmatch(
     const char *pattern, const char *value,
-    int doubleglob_for_paths, int is_winpath
+    int doublestar_for_paths, int backslash_paths
 );
 
 
-/// Similar as spew3d_globmatch(), but you can specify patterns and
+/// Similar as spew3d_wildcardmatch(), but you can specify patterns and
 /// values as byte buffers that may contain null bytes. Null bytes
 /// are treated like just any other normal character.
-S3DEXP int spew3d_globmatchbuf(
+S3DEXP int spew3d_wildcardmatchbuf(
     const uint8_t *pattern, size_t patternlen,
     const uint8_t *value, size_t valuelen,
-    int doubleglob_for_paths, int is_winpath
+    int doublestar_for_paths, int backslash_paths
 );
 
-#endif  // SPEW3D_GLOB_H_
+#endif  // SPEW3D_WILDCARD_H_
 

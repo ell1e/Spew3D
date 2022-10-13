@@ -37,97 +37,105 @@ license, see accompanied LICENSE.md.
 START_TEST (test_glob)
 {
     int result;
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc", "abc", 0, 0
     );
     assert(result == 1);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc", "def", 0, 0
     );
     assert(result == 0);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc*", "def", 0, 0
     );
     assert(result == 0);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc*", "abdef", 0, 0
     );
     assert(result == 0);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc*", "abcdef", 0, 0
     );
     assert(result == 1);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc*ef", "abcdef", 0, 0
     );
     assert(result == 1);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc*de", "abcdef", 0, 0
     );
     assert(result == 0);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc*de*", "abcdef", 0, 0
     );
     assert(result == 1);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc*de?", "abcdef", 0, 0
     );
     assert(result == 1);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc*de?", "abcdefg", 0, 0
     );
     assert(result == 0);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc*de*", "abcdefg", 0, 0
     );
     assert(result == 1);
 
     // Test escaping examples:
 
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc^*de*", "abcdefg", 0, 0
     );
     assert(result == 0);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc^*de*", "abc*deefg", 0, 0
     );
     assert(result == 1);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc^^*de*", "abc^deefg", 0, 0
     );
     assert(result == 1);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc^^x*de*", "abc^deefg", 0, 0
     );
     assert(result == 0);
 
     // Test file path examples:
 
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
+        "abc/de", "abc\\de", 0, 1
+    );
+    assert(result == 1);
+    result = spew3d_wildcardmatch(
+        "abc/de", "abc\\de", 0, 0
+    );
+    assert(result == 0);
+    result = spew3d_wildcardmatch(
         "abc*de*", "abc/defg", 1, 0
     );
     assert(result == 0);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc*/de*", "abc/defg", 1, 0
     );
     assert(result == 1);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc**de*", "abc/defg", 1, 0
     );
     assert(result == 1);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc?de", "abc/de", 1, 0
     );
     assert(result == 0);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc?de", "abc\\de", 1, 0
     );
     assert(result == 1);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc?de", "abc\\de", 1, 1
     );
     assert(result == 0);
-    result = spew3d_globmatch(
+    result = spew3d_wildcardmatch(
         "abc*x/de", "abcx/de", 1, 0
     );
     assert(result == 1);

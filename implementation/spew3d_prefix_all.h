@@ -63,8 +63,9 @@ license, see accompanied LICENSE.md.
 #define MINIZ_NO_ZLIB_COMPATIBLE_NAMES
 
 // Some debug options:
+#ifdef SPEW3D_DEBUG_OUTPUT
 #define DEBUG_SPEW3D_FS
 #define DEBUG_SPEW3D_VFS
 #define DEBUG_SPEW3D_TEXTURE
-
+#endif
 

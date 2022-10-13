@@ -83,7 +83,8 @@ to some included dependencies like miniz not supporting it, sorry.*
 
 Spew3D has some options which you can use via `-DSPEW3D_OPTION...`
 with gcc/mingw, or defining them **before** including `spew3d.h`.
-Always specify the same ones wherever you include it!
+**WARNING: ENSURE THAT EVERY INCLUDE OF `spew3d.h` WILL HAVE
+THE SAME OPTIONS DEFINED IN ADVANCE,** or things will break.
 
 Available options:
 
@@ -97,6 +98,9 @@ Available options:
   remains available. This includes image loading, audio decoding
   without actual playback, threading and file system helpers,
   the Virtual File System, and so on. Ideal for headless use!
+
+- `SPEW3D_DEBUG_OUTPUT`: If defined, Spew3D will print out
+  some amount of debug messages for internal diagnostics.
 
 
 ## Run Tests
