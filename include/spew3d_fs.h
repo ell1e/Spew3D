@@ -76,6 +76,10 @@ S3DEXP int spew3d_fs_CreateDirectory(const char *path);
 
 S3DEXP void spew3d_fs_FreeFolderList(char **list);
 
+S3DEXP int filesys_IsLink(
+    const char *path, int *result
+);
+
 S3DEXP int spew3d_fs_ListFolderEx(
     const char *path, char ***contents,
     int returnFullPath, int allowsymlink,

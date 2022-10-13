@@ -127,6 +127,34 @@ S3DEXP int spew3d_fs_IsObviouslyInvalidPath(const char *p) {
 }
 
 
+#if defined(_WIN32) || defined(_WIN64)
+S3DHID int _spew3d_IsHandleSymlinkOrJunction(HANDLE fhandle) {
+    DWORD written = 0;
+    char reparse_buf[MAXIMUM_REPARSE_DATA_BUFFER_SIZE] = {0};
+    struct reparse_tag {
+        ULONG tag;
+    };
+    if (!DeviceIoControl(
+            fhandle, FSCTL_GET_REPARSE_POINT, NULL, 0,
+            (LPVOID)reparse_buf, sizeof(reparse_buf),
+            &written, 0
+            )) {
+        // Assume there is no reparse point.
+    } else {
+        struct reparse_tag *tagcheck = (
+            (struct reparse_tag *)reparse_buf
+        );
+        if (tagcheck->tag == IO_REPARSE_TAG_SYMLINK ||
+                tagcheck->tag == IO_REPARSE_TAG_MOUNT_POINT) {
+            CloseHandle(fhandle);
+            return 1;
+        }
+    }
+    return 0;
+}
+#endif
+
+
 S3DHID h64filehandle spew3d_fs_OpenFromPathAsOSHandleEx(
         const char *path, const char *mode, int flags, int *err
         ) {
@@ -260,7 +288,7 @@ S3DHID h64filehandle spew3d_fs_OpenFromPathAsOSHandleEx(
         return H64_NOFILE;
     }
     if ((flags & OPEN_ONLY_IF_NOT_LINK) != 0) {
-        if (_check_if_symlink_or_junction(fhandle)) {
+        if (_spew3d_IsHandleSymlinkOrJunction(fhandle)) {
             #if defined(DEBUG_SPEW3D_FS)
             fprintf(stderr,
                 "spew3d_filesystem.h: debug: "
@@ -307,6 +335,30 @@ S3DHID h64filehandle spew3d_fs_OpenFromPathAsOSHandleEx(
         return H64_NOFILE;
     }
     return fd;
+    #endif
+}
+
+S3DEXP int filesys_IsLink(
+        const char *path, int *result
+        ) {
+    #if defined(_WIN32) || defined(_WIN64)
+    int err = 0;
+    h64filehandle h = spew3d_fs_OpenFromPathAsOSHandleEx(
+        path, "rb", 0, &err
+    );
+    if (h == H64_NOFILE)
+        return 0;
+    *result = _spew3d_IsHandleSymlinkOrJunction(h);
+    CloseHandle(h);
+    return 1;
+    #else
+    struct stat buf;
+    int statresult = lstat(path, &buf);
+    if (statresult < 0)
+        return 0;
+    if (result)
+        *result = S_ISLNK(buf.st_mode);
+    return 1;
     #endif
 }
 

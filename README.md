@@ -6,11 +6,10 @@ for C.**
 
 **Features:**
 
-- potato low poly-count graphics,
 - simple API,
 - 2d and 3d graphics, image loading, sound, and more,
-- good for procedural textures or geometry,
 - retro-style like PlayStation 1 or Nintendo64,
+- filesystem, multi-byte, etc. wrapped cross-platform,
 - wide platform support thanks to [SDL2](https://libsdl.org).
 
 **Do not use if** it disturbs you that Spew3D:
@@ -22,9 +21,7 @@ for C.**
 
 ## Compiling / Usage
 
-*(If you're using this directly from the repository, run
-`make update-vendor` and `make` in the repo folder to prepare
-the resulting `spew3d.h` file with everything.)*
+*(Get `spew3d.h` [from here](https://codeberg.org/ell1e/spew3d/releases).)*
 
 **Step 1:** add `spew3d.h` into your project's code folder, and
 put this in all your files where you want to use it from:
@@ -56,6 +53,14 @@ and the ['examples' folder](./examples/) for documentation.
 
 ### Common Compilation Problems
 
+**Question: Where is `spew3d.h`?**
+
+*Answer: it's generated and not
+directly in the repository, [see here](#compiling-usage).
+If you want to get it from the repository,
+check the [section on running tests](#run-tests).*
+
+
 **Question: I am getting missing definitions for `fseeko64` or
 `ftello64` on Linux, what's up with that?**
 
@@ -65,6 +70,13 @@ flag for 64bit file support which Spew3D needs. To solve this,
 either add `-D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE` to
 your gcc or clang compiler flags for your project, or include
 `spew3d.h` before whatever other header that pulls in `stdio.h`.*
+
+
+**Question: I included this with `extern "C" {` in my C++
+program via `g++` (or similar) and got tons of errors!**
+
+*Answer: Currently, C++ is not supported. This is in part due
+to some included dependencies like miniz not supporting it, sorry.*
 
 
 ## Options
@@ -84,7 +96,17 @@ Available options:
   graphical functions and sound output, but all other functionality
   remains available. This includes image loading, audio decoding
   without actual playback, threading and file system helpers,
-  the Virtual File System, and so on.
+  the Virtual File System, and so on. Ideal for headless use!
+
+
+## Run Tests
+
+Currently, running the tests is only supported on Linux.
+This will also generate the `spew3d.h` file if you checked out
+the development version of Spew3D at `include/spew3d.h`.
+
+To run the tests, install SDL2 and libcheck (the GNU unit
+test library for C) system-wide, then use: `make test`
 
 
 ## License

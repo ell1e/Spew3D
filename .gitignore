@@ -1,3 +1,5 @@
+/implementation/test_*.bin
+/implementation/test_*.exe
 vgcore.*
 /examples/example_*.bin
 /examples/example_*.exe
