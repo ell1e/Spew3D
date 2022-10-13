@@ -48,7 +48,10 @@ license, see accompanied LICENSE.md.
 /// single character. If you prefix a special character with a '^'
 /// including '^' itself, it will be treated as normal character.
 ///
-/// @returns 1 if the value matches the pattern, otherwise 0.
+/// @returns for a valid pattern, returns `1` and then sets `*result`
+/// to 1 if it matches the input parameter, otherwise `0`. Returns `0`
+/// if the the pattern was invalid due to having more asterisks
+/// than SPEW3D_MAX_ASTERISKS allows.
 ///
 /// @param double_glob_for_paths
 /// If parameter doubleglob_for_paths is set to 0, then a '*' character
@@ -62,7 +65,8 @@ license, see accompanied LICENSE.md.
 /// and will generally compare as being equal.
 S3DEXP int spew3d_wildcardmatch(
     const char *pattern, const char *value,
-    int doublestar_for_paths, int backslash_paths
+    int doublestar_for_paths, int backslash_paths,
+    int *result
 );
 
 
@@ -72,7 +76,8 @@ S3DEXP int spew3d_wildcardmatch(
 S3DEXP int spew3d_wildcardmatchbuf(
     const uint8_t *pattern, size_t patternlen,
     const uint8_t *value, size_t valuelen,
-    int doublestar_for_paths, int backslash_paths
+    int doublestar_for_paths, int backslash_paths,
+    int *result
 );
 
 #endif  // SPEW3D_WILDCARD_H_

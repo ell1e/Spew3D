@@ -34,108 +34,120 @@ license, see accompanied LICENSE.md.
 
 #include "testmain.h"
 
+
+int spew3d_wildcardmatch_assertpatternvalid(
+        const char *pattern, const char *value,
+        int doublestar_for_paths, int backslash_paths
+        ) {
+    int result = 0;
+    assert(spew3d_wildcardmatch(pattern, value,
+        doublestar_for_paths, backslash_paths,
+        &result));
+    return result;
+}
+
 START_TEST (test_glob)
 {
     int result;
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc", "abc", 0, 0
     );
     assert(result == 1);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc", "def", 0, 0
     );
     assert(result == 0);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc*", "def", 0, 0
     );
     assert(result == 0);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc*", "abdef", 0, 0
     );
     assert(result == 0);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc*", "abcdef", 0, 0
     );
     assert(result == 1);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc*ef", "abcdef", 0, 0
     );
     assert(result == 1);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc*de", "abcdef", 0, 0
     );
     assert(result == 0);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc*de*", "abcdef", 0, 0
     );
     assert(result == 1);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc*de?", "abcdef", 0, 0
     );
     assert(result == 1);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc*de?", "abcdefg", 0, 0
     );
     assert(result == 0);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc*de*", "abcdefg", 0, 0
     );
     assert(result == 1);
 
     // Test escaping examples:
 
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc^*de*", "abcdefg", 0, 0
     );
     assert(result == 0);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc^*de*", "abc*deefg", 0, 0
     );
     assert(result == 1);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc^^*de*", "abc^deefg", 0, 0
     );
     assert(result == 1);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc^^x*de*", "abc^deefg", 0, 0
     );
     assert(result == 0);
 
     // Test file path examples:
 
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc/de", "abc\\de", 0, 1
     );
     assert(result == 1);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc/de", "abc\\de", 0, 0
     );
     assert(result == 0);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc*de*", "abc/defg", 1, 0
     );
     assert(result == 0);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc*/de*", "abc/defg", 1, 0
     );
     assert(result == 1);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc**de*", "abc/defg", 1, 0
     );
     assert(result == 1);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc?de", "abc/de", 1, 0
     );
     assert(result == 0);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc?de", "abc\\de", 1, 0
     );
     assert(result == 1);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc?de", "abc\\de", 1, 1
     );
     assert(result == 0);
-    result = spew3d_wildcardmatch(
+    result = spew3d_wildcardmatch_assertpatternvalid(
         "abc*x/de", "abcx/de", 1, 0
     );
     assert(result == 1);

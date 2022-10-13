@@ -39,8 +39,8 @@ license, see accompanied LICENSE.md.
 S3DEXP int spew3d_wildcardmatchbuf(
         const uint8_t *pattern, size_t patternlen,
         const uint8_t *value, size_t valuelen,
-        int doublestar_for_paths, int backslash_paths
-        ) {
+        int doublestar_for_paths, int backslash_paths,
+        int *result) {
     #ifdef _SPEW3D_GLOBDEBUG
     char _patternstrbuf[64];
     char _valuestrbuf[64];
@@ -133,8 +133,10 @@ S3DEXP int spew3d_wildcardmatchbuf(
             const uint8_t *remainingpattern = NULL;
             size_t remainingpatternlen = 0;
             if (i + 1 >= patternlen) {  // Trailing last '*':
-                if (!doublestar_for_paths)  // Matches everything, done!
+                if (!doublestar_for_paths) {  // Matches everything, done!
+                    *result = 1;
                     return 1;
+                }
                 // Make sure remaining value has no path separator:
                 while (i2 < valuelen) {
                     if (value[i2] == '/' ||
@@ -144,7 +146,8 @@ S3DEXP int spew3d_wildcardmatchbuf(
                             "spew3d_wildcardmatchbuf() mismatch at "
                             "pattern position %d\n", (int)i);
                         #endif
-                        return 0;
+                        *result = 0;
+                        return 1;
                     }
                     i2++;
                 }
@@ -152,6 +155,7 @@ S3DEXP int spew3d_wildcardmatchbuf(
                 printf("spew3d_wildcard.c: debug: "
                     "spew3d_wildcardmatchbuf() matched!\n");
                 #endif
+                *result = 1;
                 return 1;
             }
             // We got still some stuff left in our pattern, match it:
@@ -189,20 +193,25 @@ S3DEXP int spew3d_wildcardmatchbuf(
                         "spew3d_wildcardmatchbuf() mismatch at "
                         "pattern position %d\n", (int)i);
                     #endif
-                    return 0;
+                    *result = 0;
+                    return 1;
                 }
                 // Try to match remaining substring:
-                int result = spew3d_wildcardmatchbuf(
+                int innerresult = 0;
+                int validpattern = spew3d_wildcardmatchbuf(
                     remainingpattern, remainingpatternlen,
                     &value[i2], valuelen - i2,
-                    doublestar_for_paths, backslash_paths
+                    doublestar_for_paths, backslash_paths,
+                    &innerresult
                 );
-                if (result) {
+                assert(validpattern);
+                if (innerresult) {
                     #ifdef _SPEW3D_GLOBDEBUG
                     printf("spew3d_wildcard.c: debug: "
                         "spew3d_wildcardmatchbuf() matched via "
                         "recursion!\n");
                     #endif
+                    *result = 1;
                     return 1;
                 }
                 i2++;
@@ -212,7 +221,8 @@ S3DEXP int spew3d_wildcardmatchbuf(
                 "spew3d_wildcardmatchbuf() mismatch at "
                 "pattern position %d\n", (int)i);
             #endif
-            return 0;
+            *result = 0;
+            return 1;
         }
         if (pattern[i] != value[i2] && (
                 !backslash_paths ||
@@ -223,7 +233,8 @@ S3DEXP int spew3d_wildcardmatchbuf(
                 "spew3d_wildcardmatchbuf() mismatch at "
                 "pattern position %d\n", (int)i);
             #endif
-            return 0;
+            *result = 0;
+            return 1;
         }
         is_escaped = 0;
         i++;
@@ -234,6 +245,7 @@ S3DEXP int spew3d_wildcardmatchbuf(
         printf("spew3d_wildcard.c: debug: "
             "spew3d_wildcardmatchbuf() matched!\n");
         #endif
+        *result = 1;
         return 1;
     }
     #ifdef _SPEW3D_GLOBDEBUG
@@ -241,18 +253,21 @@ S3DEXP int spew3d_wildcardmatchbuf(
         "spew3d_wildcardmatchbuf() mismatch at "
         "pattern position %d\n", (int)i);
     #endif
-    return 0;
+    *result = 0;
+    return 1;
 }
 
 
 S3DEXP int spew3d_wildcardmatch(
         const char *pattern, const char *value,
-        int doublestar_for_paths, int backslash_paths
+        int doublestar_for_paths, int backslash_paths,
+        int *result
         ) {
     return spew3d_wildcardmatchbuf(
         pattern, strlen(pattern),
         value, strlen(value),
-        doublestar_for_paths, backslash_paths
+        doublestar_for_paths, backslash_paths,
+        result
     );
 }
 
