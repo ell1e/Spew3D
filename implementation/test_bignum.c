@@ -64,6 +64,66 @@ START_TEST (test_bignum)
         "-12345678123456781234567812345678123456781234567812345679"
     );
     assert(result == 1);
+
+    result = spew3d_bignum_CompareStrFloats(
+        "12345678123456781234567812345678123456781234567812345678",
+        "12345678123456781234567812345678123456781234567812345678.001"
+    );
+    assert(result == -1);
+    result = spew3d_bignum_CompareStrFloats(
+        "12345678123456781234567812345678123456781234567812345678.00100",
+        "12345678123456781234567812345678123456781234567812345678.001"
+    );
+    assert(result == 0);
+    result = spew3d_bignum_CompareStrFloats(
+        "12345678123456781234567812345678123456781234567812345678.00100",
+        "12345678123456781234567812345678123456781234567812345678.0012"
+    );
+    assert(result == -1);
+    result = spew3d_bignum_CompareStrFloats(
+        "12345678123456781234567812345678123456781234567812345678.00200",
+        "12345678123456781234567812345678123456781234567812345678.001"
+    );
+    assert(result == 1);
+    result = spew3d_bignum_CompareStrFloats(
+        "12345678123456781234567812345678123456781234567812345678.00100",
+        "12345678123456781234567812345678123456781234567812345678.001234"
+    );
+    assert(result == -1);
+    result = spew3d_bignum_CompareStrFloats(
+        "-12345678123456781234567812345678123456781234567812345678.00123",
+        "12345678123456781234567812345678123456781234567812345678.001000"
+    );
+    assert(result == -1);
+
+    result = spew3d_bignum_VerifyStrFloat(
+        "-3434.344"
+    );
+    assert(result == 1);
+    result = spew3d_bignum_VerifyStrFloat(
+        "-34344"
+    );
+    assert(result == 1);
+    result = spew3d_bignum_VerifyStrFloat(
+        "-.34344"
+    );
+    assert(result == 0);
+    result = spew3d_bignum_VerifyStrFloat(
+        "-2.343.44"
+    );
+    assert(result == 0);
+    result = spew3d_bignum_VerifyStrFloat(
+        "-3."
+    );
+    assert(result == 0);
+    result = spew3d_bignum_VerifyStrFloat(
+        "-"
+    );
+    assert(result == 0);
+    result = spew3d_bignum_VerifyStrFloat(
+        "44 "
+    );
+    assert(result == 0);
 }
 END_TEST
 

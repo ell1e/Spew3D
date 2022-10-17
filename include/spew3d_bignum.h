@@ -31,8 +31,34 @@ license, see accompanied LICENSE.md.
 #include <stdint.h>
 
 
-int spew3d_bignum_CompareStrInts(
+S3DEXP int spew3d_bignum_VerifyStrInt(const char *v);
+
+S3DEXP int spew3d_bignum_VerifyStrIntBuf(
+    const char *v, size_t vlen
+);
+
+S3DEXP int spew3d_bignum_VerifyStrFloat(const char *v);
+
+S3DEXP int spew3d_bignum_VerifyStrFloatBuf(
+    const char *v, size_t vlen
+);
+
+S3DEXP int spew3d_bignum_CompareStrInts(
     const char *v1, const char *v2
+);
+
+S3DEXP int spew3d_bignum_CompareStrIntsBuf(
+    const char *v1, size_t v1len,
+    const char *v2, size_t v2len
+);
+
+S3DEXP int spew3d_bignum_CompareStrFloats(
+    const char *v1, const char *v2
+);
+
+S3DEXP int spew3d_bignum_CompareStrFloatsBuf(
+    const char *v1, size_t v1len,
+    const char *v2, size_t v2len
 );
 
 #endif  // SPEW3D_BIGINT_H_
