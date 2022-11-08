@@ -79,6 +79,16 @@ typedef struct s3d_mutex {
 } s3d_mutex;
 
 
+typedef struct s3d_tevent {
+#ifdef WINDOWS
+    HANDLE e;
+#else
+    char was_set;
+    pthread_cond_t e;
+    pthread_mutex_t m;
+#endif
+} s3d_tevent;
+
 typedef struct s3d_semaphore {
 #ifdef WINDOWS
     HANDLE s;
@@ -434,6 +444,66 @@ void thread_Join(s3d_threadinfo *t) {
     pthread_join(t->t, NULL);
 #endif
     free(t);
+}
+
+
+s3d_tevent *threadevent_Create() {
+    s3d_tevent *e = malloc(sizeof(*e));
+    if (!e)
+        return NULL;
+    memset(e, 0, sizeof(*e));
+#ifdef WINDOWS
+    e->e = CreateEvent(NULL, FALSE, FALSE, NULL);
+    if (e->e == NULL) {
+        free(e);
+        return NULL;
+    }
+#else
+    pthread_mutex_init(&e->m, NULL);
+    pthread_cond_init(&e->e, NULL);
+#endif
+    return e;
+}
+
+
+void threadevent_Free(s3d_tevent *e) {
+#ifdef WINDOWS
+    if (e) {
+        CloseHandle(e->e);
+    }
+#else
+    if (e) {
+        pthread_mutex_destroy(&e->m);
+        pthread_cond_destroy(&e->e);
+    }
+#endif
+    free(e);
+}
+
+
+void threadevent_Wait(s3d_tevent *e) {
+#ifdef WINDOWS
+    WaitForSingleObject(e->e);
+#else
+    pthread_mutex_lock(&e->m);
+    while (!e->was_set) {
+        pthread_cond_wait(&e->e, &e->m);
+    }
+    e->was_set = 0;
+    pthread_mutex_unlock(&e->m);
+#endif
+}
+
+
+void threadevent_Set(s3d_tevent *e) {
+#ifdef WINDOWS
+    SetEvent(e->e);
+#else
+    pthread_mutex_lock(&e->m);
+    e->was_set = 1;
+    pthread_mutex_unlock(&e->m);
+    pthread_cond_signal(&e->e);
+#endif
 }
 
 #endif  // SPEW3D_IMPLEMENTATION

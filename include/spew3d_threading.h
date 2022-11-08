@@ -35,6 +35,8 @@ typedef struct s3d_semaphore s3d_semaphore;
 
 typedef struct s3d_threadinfo s3d_threadinfo;
 
+typedef struct s3d_tevent s3d_tevent;
+
 
 s3d_semaphore *semaphore_Create(int value);
 
@@ -85,6 +87,12 @@ s3d_threadinfo *thread_SpawnWithPriority(
 );
 
 
+s3d_tevent *threadevent_Create();
+
+
+void threadevent_Free(s3d_tevent *e);
+
+
 void thread_Detach(s3d_threadinfo *t);
 
 
@@ -92,5 +100,11 @@ void thread_Join(s3d_threadinfo *t);
 
 
 int thread_InMainThread();
+
+
+void threadevent_Wait(s3d_tevent *e);
+
+
+void threadevent_Set(s3d_tevent *e);
 
 #endif  // SPEW3D_THREADING_H_
