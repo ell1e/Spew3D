@@ -43,6 +43,7 @@ license, see accompanied LICENSE.md.
 #endif
 
 // Try to ensure 64bit file handling:
+#define _TIME_BITS 64
 #define _FILE_OFFSET_BITS 64
 #ifndef __USE_LARGEFILE64
 #define __USE_LARGEFILE64 1
