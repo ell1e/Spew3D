@@ -25,60 +25,14 @@ Alternatively, at your option, this file is offered under the Apache 2
 license, see accompanied LICENSE.md.
 */
 
-// Some stuff that will be put at the start of spew3d.h before
-// all external modules.
+#ifndef SPEW3D_TIME_H_
+#define SPEW3D_TIME_H_
 
-// XXX: Header-guard intentionally missing!
-
-#ifndef _WIN32_WINNT
-// Windows Vista
-#define _WIN32_WINNT 0x0600
-#endif
-
-#if !defined(S3DEXP) && !defined(SPEW3D_OPTION_DISABLE_DLLEXPORT)
-#if (defined(_WIN32) || defined(_WIN64))
-#define S3DEXP __declspec(dllexport)
-#if defined(__MINGW32__) || defined(__MINGW64__)
-#define S3DHID __attribute__ ((visibility ("hidden")))
-#endif
-#else
-#define S3DEXP __attribute__ ((visibility ("default")))
-#define S3DHID __attribute__ ((visibility ("hidden")))
-#endif
-#endif
-
-// Try to ensure 64bit file handling:
-#define _TIME_BITS 64
-#define _FILE_OFFSET_BITS 64
-#ifndef __USE_LARGEFILE64
-#define __USE_LARGEFILE64 1
-#endif
-#ifndef _LARGEFILE64_SOURCE
-#define _LARGEFILE64_SOURCE
-#endif
-#define _LARGEFILE_SOURCE
-
-// For <stb/stb_image.h>:
-#define STBI_NO_STDIO
-#ifdef SPEW3D_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#endif
-
-// For <miniz/miniz.h>:
-#define MINIZ_NO_ZLIB_APIS
-#define MINIZ_NO_ZLIB_COMPATIBLE_NAMES
-
-// Some debug options:
-#ifdef SPEW3D_DEBUG_OUTPUT
-#define DEBUG_SPEW3D_FS
-#define DEBUG_SPEW3D_VFS
-#define DEBUG_SPEW3D_TEXTURE
-#endif
-
-// Some code is written with this assumption (e.g. spew3d_bigint.h):
-#include <limits.h>
 #include <stdint.h>
-#if UINTPTR_MAX > UINT64_MAX
-  #error "Some Spew3D code cannot handle this pointer size."
-#endif
+
+uint64_t spew3d_time_Ticks();
+
+void spew3d_time_Sleep(uint64_t sleepms);
+
+#endif  // SPEW3D_TIME_H_
 

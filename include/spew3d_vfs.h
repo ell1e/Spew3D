@@ -44,9 +44,14 @@ int64_t spew3d_vfs_MountArchiveFromDisk(
 char *spew3d_vfs_NormalizePath(const char *path);
 
 int spew3d_vfs_FileToBytes(
-    const char *path,
+    const char *path, int flags,
+    int *out_fserr,
     char **out_bytes,
     uint64_t *out_bytes_len
+);
+
+int spew3d_vfs_Exists(
+    const char *path, int vfsflags, int *result, int *fserr
 );
 
 typedef struct SPEW3DVFS_FILE SPEW3DVFS_FILE;

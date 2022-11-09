@@ -266,11 +266,9 @@ void mutex_Lock(s3d_mutex *m) {
 #ifdef WINDOWS
     WaitForSingleObject(m->m, INFINITE);
 #else
-#ifndef NDEBUG
-    assert(pthread_mutex_lock(&m->m) == 0);
-#else
-    pthread_mutex_lock(&m->m);
-#endif
+    while (pthread_mutex_lock(&m->m) != 0) {
+        spew3d_time_Sleep(10);
+    }
 #endif
 }
 

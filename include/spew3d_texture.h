@@ -35,6 +35,7 @@ typedef uint64_t spew3d_texture_t;
 
 typedef struct spew3d_texture_info {
     char *idstring, *diskpath;
+    int vfsflags;
     uint8_t loaded, loadingfailed, correspondstofile;
 
     void *_internal;
@@ -42,7 +43,7 @@ typedef struct spew3d_texture_info {
 
 
 spew3d_texture_t spew3d_texture_FromFile(
-    const char *path
+    const char *path, int vfsflags
 );
 
 spew3d_texture_info *spew3d_texinfo(
@@ -54,7 +55,8 @@ spew3d_texture_t spew3d_texture_NewWritable(
 );
 
 spew3d_texture_t spew3d_texture_NewWritableFromFile(
-    const char *name, const char *original_path
+    const char *name, const char *original_path,
+    int original_vfsflags
 );
 
 void spew3d_texture_Destroy(spew3d_texture_t tid);
@@ -67,7 +69,7 @@ int spew3d_texture_Draw(
     int withalphachannel
 );
 
-void spew3d_texture_GetSize(
+int spew3d_texture_GetSize(
     spew3d_texture_t tid, int32_t *out_width,
     int32_t *out_height
 );

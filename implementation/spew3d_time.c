@@ -25,60 +25,50 @@ Alternatively, at your option, this file is offered under the Apache 2
 license, see accompanied LICENSE.md.
 */
 
-// Some stuff that will be put at the start of spew3d.h before
-// all external modules.
-
-// XXX: Header-guard intentionally missing!
-
-#ifndef _WIN32_WINNT
-// Windows Vista
-#define _WIN32_WINNT 0x0600
-#endif
-
-#if !defined(S3DEXP) && !defined(SPEW3D_OPTION_DISABLE_DLLEXPORT)
-#if (defined(_WIN32) || defined(_WIN64))
-#define S3DEXP __declspec(dllexport)
-#if defined(__MINGW32__) || defined(__MINGW64__)
-#define S3DHID __attribute__ ((visibility ("hidden")))
-#endif
-#else
-#define S3DEXP __attribute__ ((visibility ("default")))
-#define S3DHID __attribute__ ((visibility ("hidden")))
-#endif
-#endif
-
-// Try to ensure 64bit file handling:
-#define _TIME_BITS 64
-#define _FILE_OFFSET_BITS 64
-#ifndef __USE_LARGEFILE64
-#define __USE_LARGEFILE64 1
-#endif
-#ifndef _LARGEFILE64_SOURCE
-#define _LARGEFILE64_SOURCE
-#endif
-#define _LARGEFILE_SOURCE
-
-// For <stb/stb_image.h>:
-#define STBI_NO_STDIO
 #ifdef SPEW3D_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#endif
 
-// For <miniz/miniz.h>:
-#define MINIZ_NO_ZLIB_APIS
-#define MINIZ_NO_ZLIB_COMPATIBLE_NAMES
-
-// Some debug options:
-#ifdef SPEW3D_DEBUG_OUTPUT
-#define DEBUG_SPEW3D_FS
-#define DEBUG_SPEW3D_VFS
-#define DEBUG_SPEW3D_TEXTURE
-#endif
-
-// Some code is written with this assumption (e.g. spew3d_bigint.h):
-#include <limits.h>
+#include <assert.h>
 #include <stdint.h>
-#if UINTPTR_MAX > UINT64_MAX
-  #error "Some Spew3D code cannot handle this pointer size."
+#include <stdlib.h>
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#else
+#include <time.h>
+#include <unistd.h>
 #endif
+
+uint64_t spew3d_time_Ticks() {
+    #if defined(_WIN32) || defined(_WIN64)
+    return GetTickCount64();
+    #else
+    struct timespec spec;
+    clock_gettime(CLOCK_BOOTTIME, &spec);
+    uint64_t ms1 = ((uint64_t)spec.tv_sec) * 1000ULL;
+    uint64_t ms2 = ((uint64_t)spec.tv_nsec) / 1000000ULL;
+    return ms1 + ms2;
+    #endif
+}
+
+void spew3d_time_Sleep(uint64_t sleepms) {
+    if (sleepms <= 0)
+        return;
+    #if defined(_WIN32) || defined(_WIN64)
+    Sleep(sleepms);
+    #else
+    #if _POSIX_C_SOURCE >= 199309L
+    struct timespec ts;
+    ts.tv_sec = sleepms / 1000LL;
+    ts.tv_nsec = (sleepms % 1000LL) * 1000000LL;
+    nanosleep(&ts, NULL);
+    #else
+    if (sleepms >= 1000LL) {
+        sleep(sleepms / 1000LL);
+        sleepms = sleepms % 1000LL;
+    }
+    usleep(1000LL * sleepms);
+    #endif
+    #endif
+}
+
+#endif // SPEW3D_IMPLEMENTATION
 

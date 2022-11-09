@@ -29,7 +29,7 @@ int main(int argc, const char **argv) {
 
     printf("Loading sprite texture\n");
     spew3d_texture_t spritetex = spew3d_texture_FromFile(
-        "./hello_world.png"
+        "./hello_world.png", 0
     );
     if (!spritetex) {
         fprintf(stderr, "Failed to load sprite\n");
@@ -57,19 +57,19 @@ int main(int argc, const char **argv) {
         int32_t cvwidth = spew3d_window_CanvasDrawWidth();
         int32_t cvheight = spew3d_window_CanvasDrawHeight();
         int32_t imagewidth, imageheight;
-        spew3d_texture_GetSize(
-            spritetex, &imagewidth, &imageheight
-        );
-        double scale = (
-            fmin((double)cvwidth, (double)cvheight) /
-                (double)imagewidth);
-        spew3d_texture_Draw(
-            spritetex,
-            cvwidth / 2, cvheight / 2,
-            1, scale,
-            45, 1.0, 1.0, 1.0, 1.0, 1
-        );
-
+        if (spew3d_texture_GetSize(
+                spritetex, &imagewidth, &imageheight
+                )) {
+            double scale = (
+                fmin((double)cvwidth, (double)cvheight) /
+                    (double)imagewidth);
+            spew3d_texture_Draw(
+                spritetex,
+                cvwidth / 2, cvheight / 2,
+                1, scale,
+                45, 1.0, 1.0, 1.0, 1.0, 1
+            );
+        }
         SDL_RenderPresent(renderer);
     }
 
