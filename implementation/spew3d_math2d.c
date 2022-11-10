@@ -53,7 +53,7 @@ static void __attribute__((constructor))
     assert(fabs(p.x - 0.0) < 0.1);
     assert(fabs(p.y - (-1.0)) < 0.1);
 }
-#endif  // not(NDEBUG)
+#endif  // #ifndef NDEBUG
 
 
 #endif  // SPEW3D_IMPLEMENTATION

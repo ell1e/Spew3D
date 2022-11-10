@@ -30,7 +30,7 @@ license, see accompanied LICENSE.md.
 
 typedef struct spew3d_point spew3d_point;
 struct spew3d_point {
-    double x, y;
+    s3dnum_t x, y;
 };
 
 
@@ -39,21 +39,22 @@ struct spew3d_point {
 #endif
 
 static inline void spew3d_math2d_rotate(
-        spew3d_point *p, double degree
+        spew3d_point *p, s3dnum_t degree
         ) {
     /// Rotate a given point around its origin by the given degree.
     /// Positive angle gives CW (clockwise) rotation.
     /// X is right, Y is down.
-    degree = (degree / 180.0) * M_PI;
-    double newy = (p->y) * cos(degree) + (p->x) * sin(degree);
-    double newx = (p->x) * cos(degree) - (p->y) * sin(degree);
-    p->x = newx;
-    p->y = newy;
+    double d_degree = ((double)degree /
+        (double)S3D_METER / 180.0) * M_PI;
+    double newy = (p->y) * cos(d_degree) + (p->x) * sin(d_degree);
+    double newx = (p->x) * cos(d_degree) - (p->y) * sin(d_degree);
+    p->x = newx * S3D_METER;
+    p->y = newy * S3D_METER;
 }
 
 
 static inline void spew3d_math2d_rotatecenter(
-        spew3d_point *p, double degree,
+        spew3d_point *p, s3dnum_t degree,
         spew3d_point center
         ) {
     p->x -= center.x;
@@ -64,14 +65,16 @@ static inline void spew3d_math2d_rotatecenter(
 }
 
 
-static inline double spew3d_math2d_angle(
+static inline s3dnum_t spew3d_math2d_angle(
         spew3d_point *p
         ) {
     /// Return the angle of a point's origin to the point.
     /// Angles: (1.0, 0.0) returns 0 degrees angle,
     /// CW rotation increases angle. X is right, Y is down,
     /// (0.0, 1.0) returns 90 degrees angle.
-    return ((atan2(p->y, p->x) / M_PI) * 180.0);
+    return (double)((atan2((double)p->y / (double)S3D_METER,
+        (double)p->x / (double)S3D_METER) / M_PI) * 180.0) *
+        (double)S3D_METER;
 }
 
 #endif  // SPEW3D_MATH2D_H_

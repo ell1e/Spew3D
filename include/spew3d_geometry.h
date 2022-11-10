@@ -74,13 +74,12 @@ int spew3d_geometry_AddCube(
 
 int spew3d_geometry_AddCubeSimple(
     spew3d_geometry *geometry,
-    double edge_width,
+    s3dnum_t edge_width,
     spew3d_texture_t texture,
     int texture_owned
 );
 
 void spew3d_geometry_Destroy(spew3d_geometry *geometry);
-
 
 #endif  // SPEW3D_GEOMETRY_H_
 

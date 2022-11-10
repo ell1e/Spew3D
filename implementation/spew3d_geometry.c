@@ -87,7 +87,6 @@ int _internal_spew3d_geometry_AddVertexPolyAlloc(
     return 1;
 }
 
-
 spew3d_geometry *spew3d_geometry_Create() {
     spew3d_geometry *geometry = malloc(sizeof(*geometry));
     if (!geometry)
@@ -97,10 +96,9 @@ spew3d_geometry *spew3d_geometry_Create() {
     return geometry;
 }
 
-
 int spew3d_geometry_AddCube(
         spew3d_geometry *geometry,
-        double edge_width,
+        s3dnum_t edge_width,
         spew3d_pos *offset,
         spew3d_rotation *rotation,
         spew3d_point *side_texcoord,
@@ -115,7 +113,7 @@ int spew3d_geometry_AddCube(
     geometry->vertex_count += 8;
     geometry->polygon_count += 12;
 
-    const double halfedgewidth = (edge_width / 2.0);
+    const s3dnum_t halfedgewidth = (edge_width / 2);
     int viter = geometry->vertex_count - 8;
     assert(viter >= 0);
     const int viterstart = viter;
@@ -236,7 +234,6 @@ int spew3d_geometry_AddCube(
     return 1;
 }
 
-
 int spew3d_geometry_AddCubeSimple(
         spew3d_geometry *geometry,
         double edge_width,
@@ -274,7 +271,6 @@ int spew3d_geometry_AddCubeSimple(
         coords, textures, texture_owned_flag
     );
 }
-
 
 void spew3d_geometry_Destroy(spew3d_geometry *geometry) {
     if (!geometry)

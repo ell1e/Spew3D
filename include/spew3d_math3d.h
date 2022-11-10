@@ -29,11 +29,11 @@ license, see accompanied LICENSE.md.
 #define SPEW3D_MATH3D_H_
 
 typedef struct spew3d_pos {
-    double x, y, z;
+    s3dnum_t x, y, z;
 } spew3d_pos;
 
 typedef struct spew3d_rotation {
-    double hori, verti, roll;
+    s3dnum_t hori, verti, roll;
 } spew3d_rotation;
 
 
@@ -52,28 +52,42 @@ static inline void spew3d_math3d_rotate(
     /// Positive angle gives CW (clockwise) rotation.
     /// X is forward (into screen), Y is left, Z is up.
 
-    double roth = (r->hori / 180.0) * M_PI;
-    double rotv = (r->verti / 180.0) * M_PI;
-    double rotr = (r->roll / 180.0) * M_PI;
+    double roth = ((double)r->hori / (double)S3D_METER /
+        180.0) * M_PI;
+    double rotv = ((double)r->verti / (double)S3D_METER /
+        180.0) * M_PI;
+    double rotr = ((double)r->roll / (double)S3D_METER /
+        180.0) * M_PI;
     double newx, newy, newz;
+    double px = (double)p->x / (double)S3D_METER;
+    double py = (double)p->y / (double)S3D_METER;
+    double pz = (double)p->z / (double)S3D_METER;
 
     // Roll angle:
-    newy = (p->y) * cos(rotr) + (p->z) * sin(rotr);
-    newz = (p->z) * cos(rotr) - (p->y) * sin(rotr);
-    p->z = newz;
-    p->y = newy;
+    newy = (py) * cos(rotr) + (pz) * sin(rotr);
+    newz = (pz) * cos(rotr) - (py) * sin(rotr);
+    p->z = newz * S3D_METER;
+    p->y = newy * S3D_METER;
+
+    px = (double)p->x / (double)S3D_METER;
+    py = (double)p->y / (double)S3D_METER;
+    pz = (double)p->z / (double)S3D_METER;
 
     // Vertical angle:
-    newz = (p->z) * cos(rotv) + (p->x) * sin(rotv);
-    newx = (p->x) * cos(rotv) - (p->z) * sin(rotv);
-    p->x = newx;
-    p->z = newz;
+    newz = (pz) * cos(rotv) + (px) * sin(rotv);
+    newx = (px) * cos(rotv) - (pz) * sin(rotv);
+    p->x = newx * S3D_METER;
+    p->z = newz * S3D_METER;
+
+    px = (double)p->x / (double)S3D_METER;
+    py = (double)p->y / (double)S3D_METER;
+    pz = (double)p->z / (double)S3D_METER;
 
     // Horizontal angle:
-    newy = (p->y) * cos(roth) + (p->x) * sin(roth);
-    newx = (p->x) * cos(roth) - (p->y) * sin(roth);
-    p->x = newx;
-    p->y = newy;
+    newy = (py) * cos(roth) + (px) * sin(roth);
+    newx = (px) * cos(roth) - (py) * sin(roth);
+    p->x = newx * S3D_METER;
+    p->y = newy * S3D_METER;
 }
 
 #endif  // SPEW3D_MATH3D_H_

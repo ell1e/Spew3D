@@ -116,7 +116,7 @@ static void __attribute__((constructor))
     assert(fabs(p.y - (0.707107)) <= 0.01);
     assert(fabs(p.z - (0.707107)) <= 0.01);
 }
-#endif  // not(NDEBUG)
+#endif  // #ifndef NDEBUG
 
 
 #endif  // SPEW3D_IMPLEMENTATION

@@ -75,6 +75,18 @@ license, see accompanied LICENSE.md.
 #define DEBUG_SPEW3D_TEXTURE
 #endif
 
+// Number types:
+#ifndef SPEW3D_FIXED_POINT
+typedef double s3dnum_t;
+#define S3D_METER (1.0)
+#else
+typedef int64_t s3dnum_t;
+#ifndef S3D_METER
+// Default to 12 bits of fractional part:
+#define S3D_METER (4096)
+#endif
+#endif
+
 // Some code is written with this assumption (e.g. spew3d_bigint.h):
 #include <limits.h>
 #include <stdint.h>
