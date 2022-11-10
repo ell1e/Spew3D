@@ -49,6 +49,7 @@ s3d_mutex *spew3d_imgload_mutex = NULL;
 spew3d_imgload_job **job_queue = NULL;
 uint64_t job_queue_len = 0;
 uint64_t job_queue_alloc = 0;
+s3d_threadinfo *_imgloader_process_thread = NULL;
 
 __attribute__((constructor)) static void _createMutex() {
     spew3d_imgload_mutex = mutex_Create();
@@ -149,7 +150,7 @@ static int spew3d_imgload_ProcessJob() {
         assert(!job->pixels);
         job->fserror = FSERR_SUCCESS;
         mutex_Release(spew3d_imgload_mutex);
-        return 0;
+        return 1;
     }
     job->w = w;
     job->h = h;
@@ -200,9 +201,34 @@ void spew3d_imgload_DestroyJob(spew3d_imgload_job *job) {
     mutex_Release(spew3d_imgload_mutex);
 }
 
+static void _spew3d_imgload_JobThread(void* userdata) {
+    while (1) {
+        if (!spew3d_imgload_ProcessJob()) {
+            // Since we had nothing to do, sleep a little bit:
+            spew3d_time_Sleep(100);
+            // (...so other stuff can run unimpeded.)
+        }
+    }
+}
+
 spew3d_imgload_job *spew3d_imgload_NewJob(
         const char *path, int vfsflags
         ) {
+    mutex_Lock(spew3d_imgload_mutex);
+    if (_imgloader_process_thread == NULL) {
+        _imgloader_process_thread = (
+            thread_SpawnWithPriority(
+                THREAD_PRIO_HIGH, _spew3d_imgload_JobThread,
+                NULL
+            )
+        );
+        if (!_imgloader_process_thread) {
+            mutex_Release(spew3d_imgload_mutex);
+            return NULL;
+        }
+    }
+    mutex_Release(spew3d_imgload_mutex);
+
     spew3d_imgload_job *job = malloc(
         sizeof(spew3d_imgload_job)
     );

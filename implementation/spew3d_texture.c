@@ -74,7 +74,7 @@ static void __attribute__((constructor)) _internal_spew3d_ensure_texhash() {
     );
     if (!_internal_spew3d_texlist_hashmap) {
         fprintf(stderr, "spew3d_texture.c: error: "
-            "failed to allocate _internal_spew3d_texlist_hashmap");
+            "failed to allocate _internal_spew3d_texlist_hashmap\n");
         _exit(1);
     }
     memset(_internal_spew3d_texlist_hashmap, 0,
@@ -89,7 +89,6 @@ static inline spew3d_texture_info *_fast_spew3d_texinfo(
     assert(id > 0 && id <= _internal_spew3d_texlist_count);
     return &_internal_spew3d_texlist[id - 1];
 }
-
 
 spew3d_texture_info *spew3d_texinfo(
         spew3d_texture_t id
